@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pulsed Motor Dashboard</title>
+  <title>Tesla Turbine Sensor Suite</title>
   
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
 
   <script src="node_modules/jquery/dist/jquery.min.js"></script>
   <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
+  <!-- Will remove nodejs and Socket.io, and use a static page instead which requests the latest sensor data from a Python script -->
   <script src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
 
   <script src="node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -78,8 +80,8 @@
   </script>
 </head>
 <body>
-  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal">Pulsed Motor Dashboard</h5>
+  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
+    <h5 class="my-0 mr-md-auto font-weight-normal">Tesla Turbine Sensor Suite</h5>
 
     <a href="https://waveguide.blog/" title="Experimental energy research | Waveguide" target="_blank"> 
       <img src="img/waveguide-logo.svg" alt="Experimental energy research | Waveguide logo" title="Experimental energy research | Waveguide logo" height="50" width="150" scale="0" class="nolazy"> 
@@ -87,62 +89,156 @@
   </div>
 
   <div class="container-fluid">
-    <div class="card-columns">
-      <div class="card" id="card-rpm">
-        <div class="card-header">
-          RPM
-        </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
-          <div id="rpm-chart"></div>
-        </div>
-      </div>
+    <div class="row">
+      <main role="main" class="col-md-10">
+        <div class="card-columns mt-3">
 
-      <div class="card" id="card-duty">
-        <div class="card-header">
-          Duty Cycle
-        </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
-        </div>
-      </div>
+          <div class="card" id="card-rpm">
+            <div class="card-header">
+              <!-- SHOW RPM FROM BOTH SHAFTS IN THIS CHART, HOVER SHOWS BOTH VALUES -->
+              RPM
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+              <div id="rpm-chart"></div>
 
-      <div class="card" id="card-pulse-time">
-        <div class="card-header">
-          Pulse Duration
-        </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
-        </div>
-      </div>
+              <div class="data-details row">
+                <!--
+                  Periphery speed in:
+                  - Meters/second
+                  - Feet/second
+                  - KPH
+                  - MPH
+                  - Mach
 
-      <div class="card" id="card-pulse-delay">
-        <div class="card-header">
-          Pulse Delay
-        </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
-        </div>
-      </div>
+                  Angular velocity in rad/s
 
-      <div class="card" id="card-period">
-        <div class="card-header">
-          Period
-        </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
-        </div>
-      </div>
+                  Current, max, and average acceleration in m/s/s and g force
 
-      <div class="card" id="card-voltage">
-        <div class="card-header">
-          Voltage
+                  Min, max, avg, and median RPM >> show badge and celebration animation if supersonic periphery is achieved
+
+                  IF disk diameter is set, show distance travelled periphery (odometer) & RPM for supersonic
+                -->
+                <div class="col-md">
+                  <div class="row">
+                      <div class="col">
+                          <h6 class="mt-4">Speed</h6>
+                      </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="card-temp">
+            <div class="card-header">
+              <!-- SHOW TEMPERATURE IN AND OUT IN THIS CHART, HOVER SHOWS BOTH VALUES -->
+              Temperature
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+              <div id="temp-chart"></div>
+
+              <div class="data-details">
+                <!--
+                  Min in/out
+                  Max in/out
+                  Avg in/out
+                -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="card-power">
+            <div class="card-header">
+              Power out
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+              <div class="data-details">
+                <!--
+                  Amps out
+                  Voltage out
+                  Watts out
+                  KWH
+
+                  IF # disks, disk diameter, disk thickness, and disk material are set, show:
+                  Inertia in Kg m2
+                  Kinetic energy in Joules 
+                  Centrifugal force in Newton & Kg, and G force
+                -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="card-run-time">
+            <div class="card-header">
+              Run Time
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+            </div>
+          </div>
+
+          <div class="card" id="card-pulse-delay">
+            <div class="card-header">
+              Rotor data
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+              <!--
+                Material weight
+                Disk surface area (gross)
+                Disk surface area (net)
+                Disk volume
+                Disk mass
+                Total disk mass
+                Disk circumference
+              -->
+            </div>
+          </div>
         </div>
-        <div class="card-body text-center">
-          <h1 class="card-text">-</h1>
+      </main>
+
+      <div id="sidebar" class="col-md-2 border-left">
+        <div class="sidebar-heading">
+          <h6>Settings</h6>
         </div>
+
+        <div class="sidebar-content">
+          <form>
+            <div class="form-group">
+              <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" placeholder="30">
+                <div class="input-group-append">
+                  <div class="input-group-text">mm</div>
+                </div>
+              </div>
+              
+            </div>
+          </form>
+        </div>
+        
+        <!--
+          disk diameter
+          disk thickness
+          disk material
+          # disks
+          //disk spacing >> we don't use this yet
+          port area
+          # of ports
+
+          Show / hide cards
+        -->
       </div>
     </div>
+
+    
   </div>
+
+  
+      
 </body>
 </html>
