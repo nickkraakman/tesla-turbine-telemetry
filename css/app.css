@@ -1,3 +1,32 @@
+@font-face {
+	font-family: Nunito;
+	font-style: normal;
+	font-weight: 400;
+	src: url(../fonts/nunito/Nunito-Regular.ttf);
+}
+
+@font-face {
+	font-family: Nunito;
+	font-style: normal;
+	font-weight: 500;
+	src: url(../fonts/nunito/Nunito-Medium.ttf);
+}
+
+@font-face {
+	font-family: Nunito;
+	font-style: normal;
+	font-weight: 600;
+	src: url(../fonts/nunito/Nunito-SemiBold.ttf);
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
+main {
+    background: #f9fbfd;
+}
+
 #sidebar {
     position: relative;
     top: 0;
@@ -5,4 +34,8 @@
     padding-top: 1rem;
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+.card-header {
+    background: transparent;
 }
