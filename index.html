@@ -2,6 +2,9 @@
 <html>
 <head>
   <title>Tesla Turbine Sensor Suite</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/app.css">
@@ -12,6 +15,7 @@
   <!-- Will remove nodejs and Socket.io, and use a static page instead which requests the latest sensor data from a Python script -->
   <script src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
 
+  <!-- Possibly change to Chart.js: https://www.chartjs.org/docs/latest/samples/line/line.html -->
   <script src="node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
   <script>
@@ -169,6 +173,21 @@
                   Centrifugal force in Newton & Kg, and G force
                 -->
               </div>
+            </div>
+          </div>
+
+          <div class="card" id="card-pressure">
+            <div class="card-header">
+              Pressure
+            </div>
+            <div class="card-body text-center">
+              <h1 class="card-text">-</h1>
+              <!--
+                Pressure in
+                Pressure out
+
+                In PSI and Bar
+              -->
             </div>
           </div>
 
