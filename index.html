@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tesla Turbine Sensor Suite</title>
+  <title>Tesla Turbine Telemetry</title>
 
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -84,8 +84,8 @@
   </script>
 </head>
 <body>
-  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal">Tesla Turbine Sensor Suite</h5>
+  <div id="header" class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white">
+    <h5 class="my-0 mr-md-auto">Tesla Turbine Telemetry</h5>
 
     <a href="https://waveguide.blog/" title="Experimental energy research | Waveguide" target="_blank"> 
       <img src="img/waveguide-logo.svg" alt="Experimental energy research | Waveguide logo" title="Experimental energy research | Waveguide logo" height="50" width="150" scale="0" class="nolazy"> 
@@ -100,7 +100,7 @@
           <div class="card" id="card-rpm">
             <div class="card-header">
               <!-- SHOW RPM FROM BOTH SHAFTS IN THIS CHART, HOVER SHOWS BOTH VALUES -->
-              RPM
+              <h6>RPM</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -130,7 +130,7 @@
           <div class="card" id="card-temp">
             <div class="card-header">
               <!-- SHOW TEMPERATURE IN AND OUT IN THIS CHART, HOVER SHOWS BOTH VALUES -->
-              Temperature
+              <h6>Temperature</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -148,7 +148,7 @@
 
           <div class="card" id="card-power">
             <div class="card-header">
-              Power out
+              <h6>Power out</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -170,7 +170,7 @@
 
           <div class="card" id="card-pressure">
             <div class="card-header">
-              Pressure
+              <h6>Pressure</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -185,7 +185,7 @@
 
           <div class="card" id="card-run-time">
             <div class="card-header">
-              Run Time
+              <h6>Run Time</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -194,7 +194,7 @@
 
           <div class="card" id="card-pulse-delay">
             <div class="card-header">
-              Rotor data
+              <h6>Rotor data</h6>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">-</h1>
@@ -212,7 +212,7 @@
         </div>
       </main>
 
-      <div id="sidebar" class="col-md-2 border-left">
+      <div id="sidebar" class="col-md-2">
         <div class="sidebar-heading">
           <h6>Settings</h6>
         </div>
