@@ -35,6 +35,15 @@ h1, h2, h3, h4 h5, h6 {
     border-bottom: 1px solid #e3ebf6;
 }
 
+#brand-icon {
+    height: 50px;
+    width: auto;
+}
+
+#brand-name {
+    margin-left: 10px;
+}
+
 #sidebar {
     position: relative;
     top: 0;
