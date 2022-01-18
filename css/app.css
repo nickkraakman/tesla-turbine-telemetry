@@ -53,6 +53,7 @@ h1, h2, h3, h4 h5, h6 {
     margin-left: 10px;
 }
 
+/*
 #sidebar {
     position: relative;
     top: 0;
@@ -62,15 +63,26 @@ h1, h2, h3, h4 h5, h6 {
     overflow-y: auto;
     border-left: 1px solid #e3ebf6;
 }
+*/
+
+.sidebar-heading {
+    padding: 1rem 1.5rem;
+}
+
+.sidebar-content {
+    padding: 0px 1.5rem;
+}
 
 .sidebar-heading h6 {
     margin-bottom: 0;
+    line-height: 40px;
 }
 
 .sidebar-footer {
     margin-top: auto;
     font-size: .875rem;
     line-height: 1.5;
+    padding: 1rem 1.5rem;
 }
 
 .card {
@@ -113,6 +125,7 @@ h1, h2, h3, h4 h5, h6 {
 
 .icon-btn {
     cursor: pointer;
+    padding: 4px;
 }
 
 .icon-btn:hover {
@@ -121,4 +134,52 @@ h1, h2, h3, h4 h5, h6 {
 
 .col-form-label-sm {
     padding-bottom: 0px;
+}
+
+.sheet {
+    -moz-transition: -moz-transform .4s;
+    -o-transition: -o-transform .4s;
+    -webkit-transition: -webkit-transform .4s;
+    transition: transform .4s;
+    box-shadow: 0 0 10px -5px rgb(0 0 0 / 20%), 0 0 24px 2px rgb(0 0 0 / 14%), 0 0 30px 5px rgb(0 0 0 / 12%);
+    flex-direction: column;
+    display: flex;
+    flex-wrap: nowrap;
+    /*background: #f1f3f4;*/
+    background: #fff;
+    bottom: 0;
+    right: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    width: 300px;
+    margin-right: -300px;
+    z-index: 41;
+}
+
+.sheet-active {
+    transform: translate(-300px, 0px);
+}
+
+.sheet-overlay {
+    opacity: 0;
+    -moz-transition: all .4s;
+    -o-transition: all .4s;
+    -webkit-transition: all .4s;
+    transition: all .4s;
+    background: #000;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    visibility: hidden;
+    z-index: 41;
+}
+
+.sheet-overlay-active {
+    opacity: 0.32;
+    visibility: visible;
 }

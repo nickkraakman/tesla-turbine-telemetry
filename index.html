@@ -6,83 +6,14 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   
-  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/feather-icons.css">
+  <link rel="stylesheet" href="css/app.css">
 
-  <script src="node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-
-  <!-- Will remove nodejs and Socket.io, and use a static page instead which requests the latest sensor data from a Python script -->
-  <script src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
-
-  <!-- Possibly change to Chart.js: https://www.chartjs.org/docs/latest/samples/line/line.html -->
-  <script src="node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-
-  <script>
-    // ## @TODO: resize chart on screen resize to fit the RPM box
-    var lineSeries
-    var seconds = 0
-
-    function displayData(data)
-    {
-      $('#card-rpm .card-text').text(data.rpm + ' RPM') 
-      $('#card-duty .card-text').text(data.duty + '%')
-      $('#card-pulse-time .card-text').text(data.pulseTime + ' µS')
-      $('#card-pulse-delay .card-text').text(data.pulseDelay + ' µS (' + data.pulseDegrees + 'º)')
-      $('#card-period .card-text').text(data.period + ' µS')
-      $('#card-voltage .card-text').text(data.voltage + ' V')
-
-      // Add data to chart
-      lineSeries.update({
-        time: seconds,
-        value: data.rpm
-      })
-    }
-
-    // Initialize socket.io
-    var socket = io('localhost:3000')
-
-    // Listen for 'arduino' messages
-    socket.on('arduino', function(data) {
-      console.log(data)
-      seconds++
-      displayData(data)
-    })
-
-    // Stuff that requires the HTML to be loaded goes into the .ready() function
-    $(document).ready(function() {
-      // Create RPM chart
-      const chartContainer = document.getElementById('rpm-chart')
-      const chart = LightweightCharts.createChart(chartContainer, { 
-        width: 400, 
-        height: 200,
-        localization: {
-            dateFormat: '',
-        },
-        grid: {
-          horzLines: {
-            color: '#eee',
-          },
-          vertLines: {
-            color: '#eee',
-          },
-        },
-        timeScale: {
-          timeVisible: true,
-          secondsVisible: true,
-          tickMarkFormatter: (time) => {
-              return time
-          }
-        },
-        crosshair: {
-          visible: false
-        }
-      })
-
-      lineSeries = chart.addLineSeries()
-    })
-  </script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
 </head>
 <body>
   <div id="header" class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white">
@@ -91,14 +22,14 @@
       Tesla Turbine Telemetry
     </h5>
 
-    <div class="icon icon-btn">
+    <div class="icon icon-btn" id="settings-btn">
       <i class="fe fe-settings"></i>
     </div>
   </div>
 
   <div class="container-fluid">
     <div class="row">
-      <main role="main" class="col-md-10">
+      <main role="main" class="col">
         <div class="card-columns mt-3">
 
           <div class="card" id="card-rpm">
@@ -256,86 +187,87 @@
           </div>
         </div>
       </main>
-
-      <div id="sidebar" class="col-md-2 d-flex flex-column">
-        <div class="sidebar-heading d-flex align-items-center mb-3">
-          <h6>Settings</h6>
-
-          <div class="icon icon-btn ml-auto">
-            <i class="fe fe-x"></i>
-          </div>
-        </div>
-
-        <div class="sidebar-content">
-          <form>
-
-            <div class="form-group">
-              <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
-              <div class="input-group input-group-sm mb-2">
-                <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28">
-                <div class="input-group-append">
-                  <div class="input-group-text">mm</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
-              <div class="input-group input-group-sm mb-2">
-                <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1">
-                <div class="input-group-append">
-                  <div class="input-group-text">mm</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="disk-count" class="col-form-label-sm"># disks</label>
-              <div class="input-group input-group-sm mb-2">
-                <input type="number" class="form-control form-control-sm" id="disk-count" name="disk-count" value="2">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="disk-material" class="col-form-label-sm">Disk material</label>
-              <div class="input-group input-group-sm mb-2">
-                <select class="form-control form-control-sm" id="disk-material" name="disk-material">
-                  <!-- Values are weight in g/cm3 -->
-                  <option value="2.81">Aluminium 7075-T6</option>
-                  <option value="1.81">Carbon fiber</option>
-                  <option value="7.99">Stainless steel 316</option>
-                  <option value="7.87">Mild steel</option>
-                  <option value="4.43">Grade 5 titanium</option>
-                  <option value="1.4">PLA</option>
-                </select>
-              </div>
-            </div>
-
-          </form>
-        </div>
-        
-        <!--
-          disk diameter
-          disk thickness
-          disk material
-          # disks
-          //disk spacing >> we don't use this yet
-          port area
-          # of ports
-
-          Show / hide cards
-        -->
-
-        <div class="sidebar-footer">
-          By <a href="https://waveguide.blog" title="Waveguide" target="_blank">Waveguide</a>
-        </div>
-      </div>
     </div>
 
     
   </div>
 
-  
+  <div class="sheet-holder">
+    <div class="sheet-overlay"></div>
+    <div id="sidebar" class="sheet d-flex flex-column">
+      <div class="sidebar-heading d-flex align-items-center mb-3">
+        <h6>Settings</h6>
+
+        <div class="icon icon-btn ml-auto" id="settings-close-btn">
+          <i class="fe fe-x"></i>
+        </div>
+      </div>
+
+      <div class="sidebar-content">
+        <form>
+
+          <div class="form-group">
+            <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28">
+              <div class="input-group-append">
+                <div class="input-group-text">mm</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1">
+              <div class="input-group-append">
+                <div class="input-group-text">mm</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="disk-count" class="col-form-label-sm"># disks</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="number" class="form-control form-control-sm" id="disk-count" name="disk-count" value="2">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="disk-material" class="col-form-label-sm">Disk material</label>
+            <div class="input-group input-group-sm mb-2">
+              <select class="form-control form-control-sm" id="disk-material" name="disk-material">
+                <!-- Values are weight in g/cm3 -->
+                <option value="2.81">Aluminium 7075-T6</option>
+                <option value="1.81">Carbon fiber</option>
+                <option value="7.99">Stainless steel 316</option>
+                <option value="7.87">Mild steel</option>
+                <option value="4.43">Grade 5 titanium</option>
+                <option value="1.4">PLA</option>
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!--
+        disk diameter
+        disk thickness
+        disk material
+        # disks
+        //disk spacing >> we don't use this yet
+        port area
+        # of ports
+
+        Show / hide cards
+      -->
+
+      <div class="sidebar-footer">
+        By <a href="https://waveguide.blog" title="Waveguide" target="_blank">Waveguide</a>
+      </div>
+    </div> 
+  </div> 
       
 </body>
 </html>
