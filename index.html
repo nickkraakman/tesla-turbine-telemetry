@@ -13,6 +13,7 @@
   <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/chart.js"></script>
+  <script src="js/math.js"></script>
   <script src="js/app.js"></script>
 </head>
 <body>
@@ -195,7 +196,7 @@
   <div class="sheet-holder">
     <div class="sheet-overlay"></div>
     <div id="sidebar" class="sheet d-flex flex-column">
-      <div class="sidebar-heading d-flex align-items-center mb-3">
+      <div class="sidebar-heading d-flex align-items-center">
         <h6>Settings</h6>
 
         <div class="icon icon-btn ml-auto" id="settings-close-btn">
@@ -207,11 +208,24 @@
         <form id="settings-form">
 
           <div class="form-group">
+            <label for="units" class="col-form-label-sm d-block">Units</label>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="units" id="metric" value="metric" checked="checked">
+              <label class="form-check-label" for="metric">Metric</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="units" id="imperial" value="imperial">
+              <label class="form-check-label" for="imperial">Imperial</label>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
             <div class="input-group input-group-sm mb-2">
-              <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28">
+              <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28" step="1" min="0">
               <div class="input-group-append">
-                <div class="input-group-text">mm</div>
+                <div class="input-group-text unit">mm</div>
               </div>
             </div>
           </div>
@@ -219,9 +233,9 @@
           <div class="form-group">
             <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
             <div class="input-group input-group-sm mb-2">
-              <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1">
+              <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1" min="0">
               <div class="input-group-append">
-                <div class="input-group-text">mm</div>
+                <div class="input-group-text unit">mm</div>
               </div>
             </div>
           </div>
@@ -245,19 +259,6 @@
                 <option value="4.43">Grade 5 titanium</option>
                 <option value="1.4">PLA</option>
               </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="units" class="col-form-label-sm d-block">Units</label>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="units" id="metric" value="metric" checked="checked">
-              <label class="form-check-label" for="metric">Metric</label>
-            </div>
-
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="units" id="imperial" value="imperial">
-              <label class="form-check-label" for="imperial">Imperial</label>
             </div>
           </div>
           

@@ -16,7 +16,21 @@ $(function()
 
     /**
      * Handle settings form changes
+     * @param {string} units The units to set the values to (metric || imperial)
      */ 
+    function setUnits(units)
+    {
+        if (units === "metric") {
+            $("#settings-form .unit").text("mm")
+            $("#settings-form #disk-diameter").prop("step", "1")
+            $("#settings-form #disk-thickness").prop("step", "0.1")
+        } else if (units === "imperial") {
+            $("#settings-form .unit").text("in")
+            $("#settings-form #disk-diameter").prop("step", "0.1")
+            $("#settings-form #disk-thickness").prop("step", "0.01")
+        }
+    }
+
     function saveSettings()
     {
         var  formData = []
@@ -48,9 +62,14 @@ $(function()
                 } else {
                     $("[name=" + settings[i].name + "]").val(settings[i].value)
                 }
+
+                if (settings[i].name === "units")
+                {
+                    setUnits(settings[i].value)
+                }
             }
         } else {
-
+            setUnits("metric")
         }
     }
     
@@ -59,7 +78,7 @@ $(function()
 
     // Listen for changes in the settings form
     let timeout = 0;
-    
+
     $("#settings-form input, #settings-form select").on( "input", function() {
         // Don't save settings on every change immediately, but wait a little to batch them
         clearTimeout(timeout);
@@ -68,4 +87,8 @@ $(function()
             saveSettings()
         }, 3000)
     });
+
+    $("#settings-form input[name=units]").on( "change", function() {
+        setUnits(this.id)
+    })
 })
