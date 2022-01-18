@@ -58,7 +58,7 @@ $(function()
             for (var i = 0; i < settings.length; i++) {
                 if (settings[i].type != undefined && settings[i].type == "radio")
                 {
-                    $("[name=" + settings[i].name + "]").prop('checked', true)
+                    $("#" + settings[i].value).prop('checked', true)
                 } else {
                     $("[name=" + settings[i].name + "]").val(settings[i].value)
                 }
