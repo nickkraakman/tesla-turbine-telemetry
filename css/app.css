@@ -19,6 +19,11 @@
 	src: url(../fonts/nunito/Nunito-SemiBold.ttf);
 }
 
+body,
+html {
+  height: 100%;
+}
+
 body {
     font-family: 'Nunito', sans-serif;
 }
@@ -31,12 +36,16 @@ h1, h2, h3, h4 h5, h6 {
     font-weight: 600;
 }
 
+.text-secondary {
+    color: #95aac9 !important;
+}
+
 #header {
     border-bottom: 1px solid #e3ebf6;
 }
 
 #brand-icon {
-    height: 50px;
+    height: 40px;
     width: auto;
 }
 
@@ -47,11 +56,21 @@ h1, h2, h3, h4 h5, h6 {
 #sidebar {
     position: relative;
     top: 0;
-    height: calc(100vh - 48px);
-    padding-top: 1rem;
+    height: calc(100vh - 73px);
+    padding: 1rem 1.5rem;
     overflow-x: hidden;
     overflow-y: auto;
     border-left: 1px solid #e3ebf6;
+}
+
+.sidebar-heading h6 {
+    margin-bottom: 0;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    font-size: .875rem;
+    line-height: 1.5;
 }
 
 .card {
@@ -66,4 +85,40 @@ h1, h2, h3, h4 h5, h6 {
 
 .card-header h6 {
     margin-bottom: 0;
+}
+
+.data-wrapper {
+    padding-top: 20px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.data-type {
+    color: #95aac9;
+}
+
+.data-value {
+    text-align: right;
+    font-weight: 600;
+}
+
+.data-unit {
+    color: #95aac9;
+    padding-left: 0;
+}
+
+.icon {
+    color: #6e84a3;
+}
+
+.icon-btn {
+    cursor: pointer;
+}
+
+.icon-btn:hover {
+    color: #12263f;
+}
+
+.col-form-label-sm {
+    padding-bottom: 0px;
 }
