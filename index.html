@@ -204,7 +204,7 @@
       </div>
 
       <div class="sidebar-content">
-        <form>
+        <form id="settings-form">
 
           <div class="form-group">
             <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
@@ -248,6 +248,19 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="units" class="col-form-label-sm d-block">Units</label>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="units" id="metric" value="metric" checked="checked">
+              <label class="form-check-label" for="metric">Metric</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="units" id="imperial" value="imperial">
+              <label class="form-check-label" for="imperial">Imperial</label>
+            </div>
+          </div>
+          
         </form>
       </div>
 
