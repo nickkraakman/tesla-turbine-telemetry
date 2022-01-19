@@ -75,11 +75,11 @@ h1, h2, h3, h4 h5, h6 {
     line-height: 40px;
 }
 
-.sidebar-footer {
+footer .footer-powered-by {
     margin-top: auto;
     font-size: .875rem;
     line-height: 1.5;
-    padding: 1rem 1.5rem;
+    padding: 1rem 0;
 }
 
 .card {
