@@ -91,4 +91,30 @@ $(function()
     $("#settings-form input[name=units]").on( "change", function() {
         setUnits(this.id)
     })
+
+
+    /**
+     * This loop polls the Python sensor reading script every 500ms for new data
+     */
+    function loop() 
+    {
+        // Get new data from Python script
+        $.ajax({
+            type: "POST",
+            url: "server.py",
+            contentType: "json",
+            success: function(data, text)
+            {
+                // Update data in Dashboard
+                console.log(data)
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
+            },
+        })
+
+        setTimeout(loop, 5000)
+    }
+
+    loop()
 })
