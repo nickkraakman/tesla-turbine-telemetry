@@ -4,7 +4,6 @@ import webbrowser
 import http.server
 import socketserver
 import json
-from urllib.parse import urlparse, parse_qs
 
 PORT = 8000
 
@@ -45,29 +44,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         self._set_headers()
         self.wfile.write(json_response_string.encode(encoding='utf-8'))
-
-    """
-    def do_GET(self):
-        request_path = self.path
-        query_string = urlparse(request_path).query
-        query_object = parse_qs(query_string)  # Dictionary of param name: value
-
-        # print("\n----- Request Start ----->\n")
-        print("request_path : %s", request_path)
-        print("query_components : %s", query_string)
-
-        request_headers = self.headers
-
-        print("request_headers : %s" % request_headers)
-        # print("<----- Request End -----\n")
-
-        sensor_data = raspberry.read_sensors()
-
-        json_string = json.dumps(sensor_data)
-
-        self._set_headers()
-        self.wfile.write(json_string.encode(encoding='utf-8'))
-    """
 
 
 def open_browser():
