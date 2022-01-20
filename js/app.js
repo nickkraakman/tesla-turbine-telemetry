@@ -94,6 +94,54 @@ $(function()
 
 
     /**
+     * Create charts
+     */
+    new Chart('rpm-chart', {
+        type: 'line',
+        options: {
+            scales: {
+                y: {
+                    ticks: {
+                        color: '#95aac9',
+                        callback: function(value) {
+                            return (value / 1000) + 'k';  // Thousands of RPM 
+                        }
+                    },
+                    grid: {
+                        display: true,
+                        color: "rgba(227,235,246,.1)",
+                        borderDash: [2, 2]
+                    }
+                    //beginAtZero: true
+                },
+                x: {
+                    ticks: {
+                        color: '#95aac9',
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false,  // We're going to need to display a legend when we show 2 readings in one chart
+                }
+            }
+        },
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Earned',
+                data: [0, 1000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
+                tension: 0.5,
+                borderColor: '#2c7be5'
+            }]
+        }
+    });
+
+
+    /**
      * This loop polls the Python sensor reading script every 500ms for new data
      */
     function loop() 

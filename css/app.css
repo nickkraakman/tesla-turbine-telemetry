@@ -100,6 +100,15 @@ footer .footer-powered-by {
     color: #95aac9;
 }
 
+.card-chart {
+  position: relative;
+  margin: auto;
+  padding: 1.25rem;
+  height: auto;
+  width: 100%;
+  background-color: #12263f;
+}
+
 .data-wrapper {
     text-align: left;
     font-size: 14px;
