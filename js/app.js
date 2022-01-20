@@ -98,11 +98,16 @@ $(function()
      */
     function loop() 
     {
-        // Get new data from Python script
+        let request_data = {
+            action: "read_sensors"
+        }
+
         $.ajax({
             type: "POST",
             url: "server.py",
             contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
             success: function(data, text)
             {
                 // Update data in Dashboard
