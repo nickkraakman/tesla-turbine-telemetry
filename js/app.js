@@ -142,6 +142,88 @@ $(function()
 
 
     /**
+     * Display sensor data on dashboard
+     * 
+     * @param {object} data JSON object containing one reading of all sensors
+     */
+    function displayData(data)
+    {
+        // How to handle averages? Can't loop through all items every 500ms
+        // Should probably add up a total, and then read the length of the array so we know what to divide with
+    }
+
+
+    /**
+     * @returns {string} The current date as YYYYMMDDHHmmss in UTC
+     */
+    function nowFormatted()
+    {
+        utcDate = new Date(new Date().toUTCString().slice(0, -4))  // https://stackoverflow.com/a/40412638/1800213
+    
+        var mm = utcDate.getMonth() + 1 // getMonth() is zero-based
+        var dd = utcDate.getDate()
+        var hh = utcDate.getHours()
+        var mins = utcDate.getMinutes()
+        var ss = utcDate.getSeconds()
+
+        return [utcDate.getFullYear(),
+                (mm>9 ? '' : '0') + mm,
+                (dd>9 ? '' : '0') + dd,
+                (hh>9 ? '' : '0') + hh,
+                (mins>9 ? '' : '0') + mins,
+                (ss>9 ? '' : '0') + ss,
+                ].join('')
+    }
+
+
+    let previousRpm = null
+
+    /**
+     * Store data temporarily in localStorage, and finally as CSV on SD card
+     * 
+     * @param {object} data JSON object containing one reading of all sensors
+     */
+    function storeData(data)
+    {
+        const currentRpm = "rpm" in data ? data.rpm : null
+
+        // Check if we have to start a new session
+        if (previousRpm === 0 && currentRpm > 0)
+        {
+            // Start new session
+            telemetrySession = { 
+                telemetry: [], 
+                sessionStart: nowFormatted(),
+                sessionEnd: null
+            }
+
+            // start session counter
+        } else {
+            if (localStorage.telemetrySession != undefined)
+            {
+                JSON.parse(localStorage.telemetrySession)
+            } else {
+                console.error("No telemetrySession found in localStorage")
+            }
+        }
+
+        // Append new data
+        telemetrySession.telemetry.push(data)
+
+        // Check if we have to end this session
+        if (previousRpm > 0 && currentRpm === 0)
+        {
+            //logSession()  // Call server to store the entire session as CSV on the SD card
+
+            localStorage.removeItem("telemetrySession")
+        } else {
+            // Store in localStorage
+            localStorage.telemetrySession = JSON.stringify(telemetrySession)
+        }
+    }
+
+
+    /**
      * This loop polls the Python sensor reading script every 500ms for new data
      */
     function loop() 
@@ -158,8 +240,13 @@ $(function()
             data: JSON.stringify(request_data),
             success: function(data, text)
             {
-                // Update data in Dashboard
                 console.log(data)
+
+                // Update data in Dashboard
+                displayData(data)
+
+                // Store the sensor data
+                storeData(data)
             }, 
             error: function (request, status, error) {
                 console.error(request.responseText)
