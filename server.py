@@ -5,8 +5,8 @@ import http.server
 import socketserver
 import json
 
-PORT = 8000
 
+PORT = 8000
 
 class Handler(http.server.SimpleHTTPRequestHandler):
 
@@ -36,18 +36,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         json_content = json.loads(json_content_string) if json_content_string else {}   # Dictionary containing data sent in POST request
 
-        print("action: %s" % json_content["action"])
+        action = json_content["action"]
+        payload = json_content["payload"] if "payload" in json_content else None
 
-        sensor_data = raspberry.read_sensors()
+        print("Action: %s" % action)
+        print("Payload: %s" % payload)
 
-        json_response_string = json.dumps(sensor_data)
+        response = raspberry.do_action( action, payload )
+
+        json_response_string = json.dumps(response)
 
         self._set_headers()
         self.wfile.write(json_response_string.encode(encoding='utf-8'))
 
 
 def open_browser():
-    """Start a browser after waiting for half a second."""
+    """Start a browser showing the dashboard after waiting for half a second."""
     def _open_browser():
         webbrowser.open('http://localhost:%s/' % (PORT))
     thread = threading.Timer(0.5, _open_browser)

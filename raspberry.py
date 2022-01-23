@@ -5,6 +5,21 @@ import os
 session_id = None
 previous_rpm = -1  # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
 
+
+def do_action(action, payload = None):
+    """Run the function that has the same name as the action parameter"""
+    function = globals()[action] if action in globals() else None
+
+    if function is None:
+        response = { 'error': 'Function ' + action + ' does not exist' }
+    elif payload is None:
+        response = function()
+    else:
+        response = function(payload)
+
+    return response
+
+
 def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
