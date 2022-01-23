@@ -154,25 +154,31 @@ $(function()
 
 
     /**
-     * @returns {string} The current date as YYYYMMDDHHmmss in UTC
+     * Call server to store the entire session as CSV on the SD card
+     * 
+     * @param {object} telemetrySession Object containing an array of sensor readings, session start, and session end time
      */
-    function nowFormatted()
+    function logSession(telemetrySession)
     {
-        utcDate = new Date(new Date().toUTCString().slice(0, -4))  // https://stackoverflow.com/a/40412638/1800213
-    
-        var mm = utcDate.getMonth() + 1 // getMonth() is zero-based
-        var dd = utcDate.getDate()
-        var hh = utcDate.getHours()
-        var mins = utcDate.getMinutes()
-        var ss = utcDate.getSeconds()
+        let request_data = {
+            action: "log_session",
+            payload: telemetrySession
+        }
 
-        return [utcDate.getFullYear(),
-                (mm>9 ? '' : '0') + mm,
-                (dd>9 ? '' : '0') + dd,
-                (hh>9 ? '' : '0') + hh,
-                (mins>9 ? '' : '0') + mins,
-                (ss>9 ? '' : '0') + ss,
-                ].join('')
+        $.ajax({
+            type: "POST",
+            url: "server.py",
+            contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
+            success: function(data, text)
+            {
+                console.log(data)
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
+            },
+        })
     }
 
 
@@ -193,7 +199,7 @@ $(function()
             // Start new session
             telemetrySession = { 
                 telemetry: [], 
-                sessionStart: nowFormatted(),
+                sessionStart: Date.now(),
                 sessionEnd: null
             }
 
@@ -213,7 +219,9 @@ $(function()
         // Check if we have to end this session
         if (previousRpm > 0 && currentRpm === 0)
         {
-            //logSession()  // Call server to store the entire session as CSV on the SD card
+            telemetrySession.sessionEnd = Date.now()
+
+            logSession(telemetrySession)
 
             localStorage.removeItem("telemetrySession")
         } else {
