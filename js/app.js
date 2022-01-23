@@ -96,7 +96,7 @@ $(function()
     /**
      * Create charts
      */
-    new Chart('rpm-chart', {
+    rpmChart = new Chart('rpm-chart', {
         type: 'line',
         options: {
             scales: {
@@ -142,6 +142,21 @@ $(function()
 
 
     /**
+     * Reset all data in the dashboard to its initial state
+     */
+    function reset() 
+    {
+        // Reset all charts
+        rpmChart.destroy()
+
+        // Reset calculations like averages
+    }
+
+
+    let sessionId = null
+
+
+    /**
      * Display sensor data on dashboard
      * 
      * @param {object} data JSON object containing one reading of all sensors
@@ -150,6 +165,20 @@ $(function()
     {
         // How to handle averages? Can't loop through all items every 500ms
         // Should probably add up a total, and then read the length of the array so we know what to divide with
+
+        if (sessionId === null && data.sessionId !== null)
+        {
+            // New session, so reset all charts and calculations
+            reset()
+        } else if (sessionId === null && data.sessionId === null)
+        {
+            // No session, don't update averages and other calculations, only live values
+        } else if (sessionId !== null && data.sessionId === null)
+        {
+            // End session
+        } else {
+            // Active session
+        }
     }
 
 
@@ -175,8 +204,7 @@ $(function()
                 // Update data in Dashboard
                 displayData(data)
 
-                // Store the sensor data
-                //storeData(data)
+                sessionId = data.sessionId
             }, 
             error: function (request, status, error) {
                 console.error(request.responseText)
