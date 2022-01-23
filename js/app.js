@@ -154,84 +154,6 @@ $(function()
 
 
     /**
-     * Call server to store the entire session as CSV on the SD card
-     * 
-     * @param {object} telemetrySession Object containing an array of sensor readings, session start, and session end time
-     */
-    function logSession(telemetrySession)
-    {
-        let request_data = {
-            action: "log_session",
-            payload: telemetrySession
-        }
-
-        $.ajax({
-            type: "POST",
-            url: "server.py",
-            contentType: "json",
-            dataType: "json",
-            data: JSON.stringify(request_data),
-            success: function(data, text)
-            {
-                console.log(data)
-            }, 
-            error: function (request, status, error) {
-                console.error(request.responseText)
-            },
-        })
-    }
-
-
-    let previousRpm = null
-
-    /**
-     * Store data temporarily in localStorage, and finally as CSV on SD card
-     * 
-     * @param {object} data JSON object containing one reading of all sensors
-     */
-    function storeData(data)
-    {
-        const currentRpm = "rpm" in data ? data.rpm : null
-
-        // Check if we have to start a new session
-        if (previousRpm === 0 && currentRpm > 0)
-        {
-            // Start new session
-            telemetrySession = { 
-                telemetry: [], 
-                sessionStart: Date.now(),
-                sessionEnd: null
-            }
-
-            // start session counter
-        } else {
-            if (localStorage.telemetrySession != undefined)
-            {
-                JSON.parse(localStorage.telemetrySession)
-            } else {
-                console.error("No telemetrySession found in localStorage")
-            }
-        }
-
-        // Append new data
-        telemetrySession.telemetry.push(data)
-
-        // Check if we have to end this session
-        if (previousRpm > 0 && currentRpm === 0)
-        {
-            telemetrySession.sessionEnd = Date.now()
-
-            logSession(telemetrySession)
-
-            localStorage.removeItem("telemetrySession")
-        } else {
-            // Store in localStorage
-            localStorage.telemetrySession = JSON.stringify(telemetrySession)
-        }
-    }
-
-
-    /**
      * This loop polls the Python sensor reading script every 500ms for new data
      */
     function loop() 
@@ -254,7 +176,7 @@ $(function()
                 displayData(data)
 
                 // Store the sensor data
-                storeData(data)
+                //storeData(data)
             }, 
             error: function (request, status, error) {
                 console.error(request.responseText)
