@@ -141,6 +141,10 @@ footer .footer-powered-by {
     color: #12263f;
 }
 
+.text-secondary {
+    color: #95aac9;
+}
+
 .col-form-label-sm {
     padding-bottom: 0px;
 }

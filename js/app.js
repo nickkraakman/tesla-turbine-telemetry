@@ -163,6 +163,11 @@ $(function()
      */
     function displayData(data)
     {
+        $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
+        $("#card-temp .card-text").html(data.temperature + "&deg;")  // @TODO: convert to Fahrenheit if Imperial is selected
+
+        $("#session-id").text(data.sessionId === null ? 'No active session' : data.sessionId)
+
         // How to handle averages? Can't loop through all items every 500ms
         // Should probably add up a total, and then read the length of the array so we know what to divide with
 
@@ -170,6 +175,7 @@ $(function()
         {
             // New session, so reset all charts and calculations
             reset()
+            startTimer()
         } else if (sessionId === null && data.sessionId === null)
         {
             // No session, don't update averages and other calculations, only live values
@@ -179,6 +185,33 @@ $(function()
         } else {
             // Active session
         }
+    }
+
+
+    /**
+     * Start a timer to count the duration of a session
+     * 
+     * @returns {object} The timer object 
+     */
+    function startTimer()
+    {
+        let sec = 0;
+        function pad ( val ) { return val > 9 ? val : "0" + val; }
+        return setInterval( function(){
+            $("#seconds").html(pad(++sec%60));
+            $("#minutes").html(pad(parseInt(sec/60,10)));
+        }, 1000);
+    }
+
+
+    /**
+     * Stop a timer
+     * 
+     * @param {object} timer The timer object
+     */
+    function stopTimer(timer)
+    {
+        clearInterval ( timer )
     }
 
 

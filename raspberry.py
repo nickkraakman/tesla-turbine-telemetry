@@ -2,6 +2,8 @@ import datetime
 import csv
 import os
 
+import random
+
 session_id = None
 previous_rpm = -1  # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
 
@@ -85,13 +87,13 @@ def write_sensor_data(sensor_data):
 def read_rpm():
     """Read RPM sensor"""
 
-    return 234000
+    return random.randrange(10000, 200000)
 
 
 def read_temperature():
     """Read temperature sensor(s)"""
 
-    return 23
+    return random.randrange(19, 25)
 
 
 def open_valve():
