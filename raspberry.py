@@ -11,7 +11,7 @@ def do_action(action, payload = None):
     function = globals()[action] if action in globals() else None
 
     if function is None:
-        response = { 'error': 'Function ' + action + ' does not exist' }
+        response = { "error": "Function " + action + " does not exist" }
     elif payload is None:
         response = function()
     else:
@@ -92,3 +92,15 @@ def read_temperature():
     """Read temperature sensor(s)"""
 
     return 23
+
+
+def open_valve():
+    """Open an electronic valve to start a test session"""
+
+    return { "valveOpen": True }
+
+
+def close_valve():
+    """Close an electronic valve to stop a test session"""
+
+    return { "valveOpen": False }

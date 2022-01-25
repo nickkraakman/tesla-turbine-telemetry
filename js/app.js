@@ -182,6 +182,60 @@ $(function()
     }
 
 
+    $("#valve-btn").on( "click", function() 
+    {
+        let currentState = $(this).data( "state" )
+        let newState = !currentState
+
+        openValve(newState)
+    })
+
+
+    /**
+     * Open or close an electronic valve to start or stop a test session
+     * 
+     * @param {boolean} state True to open valve, false to close valve
+     */
+    function openValve(state)
+    {
+        // Show loading indicator
+        $("#valve-btn .fe").removeClass("fe-play-circle").addClass("fe-clock")
+
+        let request_data = {
+            action: state === true ? "open_valve" : "close_valve"
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "server.py",
+            contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
+            success: function(data, text)
+            {
+                console.log(data)
+
+                // Update button state in Dashboard
+                if (data.valveOpen === true)
+                {
+                    // Set button to opened state (show stop)
+                    $("#valve-btn").data( "state", true )
+                    $("#valve-btn .fe").removeClass("fe-clock").addClass("fe-stop-circle")
+                } else {
+                    // Set button to closed state (show play)
+                    $("#valve-btn").data( "state", false )
+                    $("#valve-btn .fe").removeClass("fe-stop-circle").addClass("fe-play-circle")
+                }
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
+                $("#valve-btn .fe").removeClass("fe-clock").removeClass("fe-stop-circle").addClass("fe-play-circle")
+                $("#valve-btn").data( "state", false )
+            },
+        })
+    }
+
+
     /**
      * This loop polls the Python sensor reading script every 500ms for new data
      */
