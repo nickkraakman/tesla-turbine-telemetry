@@ -115,8 +115,11 @@ $(function()
                     //beginAtZero: true
                 },
                 x: {
+                    //type: 'timeseries',
                     ticks: {
                         color: '#95aac9',
+                        autoSkip: true,
+                        maxTicksLimit: 20
                     },
                     grid: {
                         display: false
@@ -130,10 +133,10 @@ $(function()
             }
         },
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            labels: [],
             datasets: [{
-                label: 'Earned',
-                data: [0, 1000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
+                label: 'RPM1',
+                data: [],
                 tension: 0.5,
                 borderColor: '#2c7be5'
             }]
@@ -147,14 +150,19 @@ $(function()
     function reset() 
     {
         // Reset all charts
-        rpmChart.destroy()
+        ticks = 0
+        rpmChart.data.labels = []
+        rpmChart.data.datasets.forEach((dataset) => {
+            dataset.data = []  // Set to empty array
+        })
+        rpmChart.update()
 
         // Reset calculations like averages
     }
 
 
     let sessionId = null
-
+    let timer = null
 
     /**
      * Display sensor data on dashboard
@@ -164,6 +172,12 @@ $(function()
     function displayData(data)
     {
         $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
+        
+        let label = (rpmChart.data.datasets[0].data.length + 1) * loopIntervalMs / 1000  // The x-axis label is the number of seconds since start of session, determined by number of data points * loop interval
+        rpmChart.data.labels.push(label)
+        rpmChart.data.datasets[0].data.push(data.rpm)
+        rpmChart.update()
+
         $("#card-temp .card-text").html(data.temperature + "&deg;")  // @TODO: convert to Fahrenheit if Imperial is selected
 
         $("#session-id").text(data.sessionId === null ? 'No active session' : data.sessionId)
@@ -175,13 +189,15 @@ $(function()
         {
             // New session, so reset all charts and calculations
             reset()
-            startTimer()
+            timer = startTimer()
         } else if (sessionId === null && data.sessionId === null)
         {
             // No session, don't update averages and other calculations, only live values
         } else if (sessionId !== null && data.sessionId === null)
         {
             // End session
+            stopTimer(timer)
+            timer = null
         } else {
             // Active session
         }
@@ -195,11 +211,11 @@ $(function()
      */
     function startTimer()
     {
-        let sec = 0;
+        let seconds = 0;
         function pad ( val ) { return val > 9 ? val : "0" + val; }
         return setInterval( function(){
-            $("#seconds").html(pad(++sec%60));
-            $("#minutes").html(pad(parseInt(sec/60,10)));
+            $("#seconds").html(pad(++seconds%60));
+            $("#minutes").html(pad(parseInt(seconds/60,10)));
         }, 1000);
     }
 
@@ -269,6 +285,8 @@ $(function()
     }
 
 
+    let loopIntervalMs = 5000  // How often we request data from the sensors
+
     /**
      * This loop polls the Python sensor reading script every 500ms for new data
      */
@@ -298,7 +316,7 @@ $(function()
             },
         })
 
-        setTimeout(loop, 5000)
+        setTimeout(loop, loopIntervalMs)
     }
 
     loop()
