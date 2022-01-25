@@ -1,6 +1,31 @@
 $(function() 
 {
     /**
+     * Init global variables
+     */
+    let sessionId = null
+    let timer = null
+    let timeout = 0
+    let rpmMax = 0
+    let rpmAvg = 0
+    let acceleration = 0
+    let accelerationMax = 0
+    let angularVelocity = 0
+    let peripherySpeed = 0
+    let distanceTravelled = 0
+    let materialWeight = 0
+    let diskSurfaceAreaGross = 0
+    let diskSurfaceAreaNet = 0
+    let diskVolume = 0
+    let diskMass = 0
+    let totalRotorMass = 0
+    let diskCircumference = 0
+    let rpmForSupersonic = 0
+    const speedOfSound = 343.2  // meters per second
+    const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
+
+
+    /**
      * Open / close settings
      */
     $( "#settings-btn" ).on( "click", function() {
@@ -29,6 +54,34 @@ $(function()
             $("#settings-form #disk-diameter").prop("step", "0.1")
             $("#settings-form #disk-thickness").prop("step", "0.01")
         }
+    }
+
+    function applySettings()
+    {
+        const diskDiameter = $("#disk-diameter").val()
+        const diskRadius = diskDiameter / 2
+        const diskThickness = $("#disk-thickness").val()
+        const diskCount = $("#disk-count").val()
+
+        // Set variables
+        materialWeight = $("#disk-material").val()
+        diskSurfaceAreaGross = Math.PI * diskRadius ** 2
+        diskSurfaceAreaNet = diskSurfaceAreaGross * diskMinusPortsPercentage
+        diskVolume = (diskSurfaceAreaNet * diskThickness) / 1000
+        diskMass = materialWeight * diskVolume
+        totalRotorMass = diskMass * diskCount
+        diskCircumference = Math.PI * diskDiameter
+        rpmForSupersonic = (speedOfSound / diskCircumference) * 60000
+
+        // Display values
+        $("#materialWeight").text(materialWeight)
+        $("#diskSurfaceAreaGross").text( Math.round(diskSurfaceAreaGross * 100) / 100 )
+        $("#diskSurfaceAreaNet").text( Math.round(diskSurfaceAreaNet * 100) / 100 )
+        $("#diskVolume").text( Math.round(diskVolume * 100) / 100 )
+        $("#diskMass").text( Math.round(diskMass * 100) / 100 )
+        $("#totalRotorMass").text( Math.round(totalRotorMass * 100) / 100 )
+        $("#diskCircumference").text( Math.round(diskCircumference * 100) / 100 )
+        $("#rpmForSupersonic").text( Math.round(rpmForSupersonic) )
     }
 
     function saveSettings()
@@ -71,22 +124,25 @@ $(function()
         } else {
             setUnits("metric")
         }
+
+        applySettings()
     }
     
     // Get form data from localstorage on page load
     loadSettings()
 
     // Listen for changes in the settings form
-    let timeout = 0;
+    $("#settings-form input, #settings-form select").on( "input", function() 
+    {
+        applySettings()
 
-    $("#settings-form input, #settings-form select").on( "input", function() {
         // Don't save settings on every change immediately, but wait a little to batch them
         clearTimeout(timeout);
 
         timeout = setTimeout(function() {
             saveSettings()
         }, 3000)
-    });
+    })
 
     $("#settings-form input[name=units]").on( "change", function() {
         setUnits(this.id)
@@ -158,11 +214,10 @@ $(function()
         rpmChart.update()
 
         // Reset calculations like averages
+        rpmMax = 0
+        rpmAvg = 0
     }
 
-
-    let sessionId = null
-    let timer = null
 
     /**
      * Display sensor data on dashboard
@@ -171,13 +226,8 @@ $(function()
      */
     function displayData(data)
     {
-        $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
+        displayRpm(data)
         
-        let label = (rpmChart.data.datasets[0].data.length + 1) * loopIntervalMs / 1000  // The x-axis label is the number of seconds since start of session, determined by number of data points * loop interval
-        rpmChart.data.labels.push(label)
-        rpmChart.data.datasets[0].data.push(data.rpm)
-        rpmChart.update()
-
         $("#card-temp .card-text").html(data.temperature + "&deg;")  // @TODO: convert to Fahrenheit if Imperial is selected
 
         $("#session-id").text(data.sessionId === null ? 'No active session' : data.sessionId)
@@ -205,18 +255,63 @@ $(function()
 
 
     /**
+     * Find the average of all numbers in an array 
+     * 
+     * @param {array} array Take the average of an array of data
+     * @returns The average
+     */
+    function average(array) {
+        return array.reduce((a, b) => (a + b)) / array.length;
+    }
+
+
+    /**
+     * Display RPM, update RPM chart, and calculate related values
+     * 
+     * @param {object} data JSON object containing one reading of all sensors 
+     */
+    function displayRpm(data)
+    {
+        // Display RPM
+        $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
+
+        // Update RPM chart
+        const dataPoints = rpmChart.data.datasets[0].data.length + 1
+        let label = dataPoints * loopIntervalMs / 1000  // The x-axis label is the number of seconds since start of session, determined by number of data points * loop interval
+        rpmChart.data.labels.push(label)
+        rpmChart.data.datasets[0].data.push(data.rpm)
+        rpmChart.update()
+
+        // Calculations
+        rpmMax = Math.max(rpmMax, data.rpm)
+        rpmAvg = average(rpmChart.data.datasets[0].data)
+        let accelerationOld = acceleration
+        acceleration = 0
+        accelerationMax = Math.max(accelerationOld, acceleration)
+        angularVelocity = 0
+        peripherySpeed = 0
+        distanceTravelled = 0
+
+
+        // Display the results of the calculations
+        $("#rpmMax").text( Math.round(rpmMax) )
+        $("#rpmAvg").text( Math.round(rpmAvg) )
+    }
+
+
+    /**
      * Start a timer to count the duration of a session
      * 
      * @returns {object} The timer object 
      */
     function startTimer()
     {
-        let seconds = 0;
+        let seconds = 0
         function pad ( val ) { return val > 9 ? val : "0" + val; }
-        return setInterval( function(){
-            $("#seconds").html(pad(++seconds%60));
-            $("#minutes").html(pad(parseInt(seconds/60,10)));
-        }, 1000);
+        return setInterval( function() {
+            $("#seconds").html(pad(++seconds%60))
+            $("#minutes").html(pad(parseInt(seconds/60,10)))
+        }, 1000)
     }
 
 
