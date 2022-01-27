@@ -1,11 +1,17 @@
 import datetime
+import time
 import csv
 import os
+import RPi.GPIO as gpio
 
 import random
 
+TACHO_PIN = 4
+
 session_id = None
 previous_rpm = -1  # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
+period = 0  # Time between RPM sensor triggers in ns
+last_trigger = 0  # Time of last RPM sensor trigger in ns
 
 
 def do_action(action, payload = None):
@@ -85,9 +91,10 @@ def write_sensor_data(sensor_data):
 
 
 def read_rpm():
-    """Read RPM sensor"""
+    """Determine RPM from period of one rotation in ns"""
+    rpm = 60 * 1000000000 / period
 
-    return random.randrange(10000, 200000)
+    return rpm
 
 
 def read_temperature():
@@ -106,3 +113,31 @@ def close_valve():
     """Close an electronic valve to stop a test session"""
 
     return { "valveOpen": False }
+
+
+def tacho_callback():
+    """Called by pin interrupt each on each rotation"""
+    global period
+    global last_trigger
+
+    time_now = time.time_ns()
+    period = time_now - last_trigger
+    last_trigger = time_now
+
+
+def main():
+    """Main, used to setup sensor pins"""
+    gpio.setmode(gpio.BCM) # Use Broadcom GPIO pin numbering
+
+    # GPIO 4 is the one we want to count.  Set it up
+    # as an input, no pull-up/down required.
+    gpio.setup(TACHO_PIN, gpio.IN)
+
+    # When a falling edge is detected on TACHO_PIN run the callback
+    gpio.add_event_detect(TACHO_PIN, gpio.FALLING, callback=tacho_callback)
+
+    gpio.cleanup()
+
+
+if __name__ == "__main__":
+    main()
