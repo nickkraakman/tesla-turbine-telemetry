@@ -68,6 +68,12 @@
                     </div>
 
                     <div class="row">
+                      <div class="col-7 data-type">Periphery speed</div>
+                      <div class="col data-value" id="peripherySpeed">1234</div>
+                      <div class="col data-unit">km/h</div>
+                    </div>
+
+                    <div class="row">
                       <div class="col-7 data-type">Acceleration</div>
                       <div class="col data-value" id="acceleration">1234</div>
                       <div class="col data-unit">m/s/s</div>
@@ -83,12 +89,6 @@
                       <div class="col-7 data-type">Angular velocity</div>
                       <div class="col data-value" id="angularVelocity">1234</div>
                       <div class="col data-unit">rad/s</div>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-7 data-type">Periphery speed</div>
-                      <div class="col data-value" id="peripherySpeed">1234</div>
-                      <div class="col data-unit">km/h</div>
                     </div>
 
                     <div class="row">
@@ -133,11 +133,37 @@
 
           <div class="card" id="card-power">
             <div class="card-header">
-              <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-zap mr-2"></i></span> Power out</h6>
+              <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-zap mr-2"></i></span> Power</h6>
             </div>
             <div class="card-body text-center">
-              <h1 class="card-text">-</h1>
-              <div class="data-details">
+              <!--<h1 class="card-text">-</h1>-->
+
+              <div class="data-wrapper">
+                <div class="row">
+                  <div class="col-md">
+
+                    <div class="row">
+                      <div class="col-7 data-type">Inertia</div>
+                      <div class="col data-value" id="inertia">1234</div>
+                      <div class="col data-unit">g m2</div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-7 data-type">Kinetic energy</div>
+                      <div class="col data-value" id="kineticEnergy">1234</div>
+                      <div class="col data-unit">Joules</div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-7 data-type">Centrifugal force</div>
+                      <div class="col data-value" id="centrifugalForce">1234</div>
+                      <div class="col data-unit">Newton</div>
+                    </div>
+
+                  </div>
+
+                </div>
+
                 <!--
                   Amps out
                   Voltage out

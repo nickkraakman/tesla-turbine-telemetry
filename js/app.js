@@ -3,24 +3,31 @@ $(function()
     /**
      * Init global variables
      */
-    let sessionId = null
-    let timer = null
-    let timeout = 0
-    let rpmMax = 0
-    let rpmAvg = 0
-    let acceleration = 0
-    let accelerationMax = 0
-    let angularVelocity = 0
-    let peripherySpeed = 0
-    let distanceTravelled = 0
-    let materialWeight = 0
-    let diskSurfaceAreaGross = 0
-    let diskSurfaceAreaNet = 0
-    let diskVolume = 0
-    let diskMass = 0
-    let totalRotorMass = 0
-    let diskCircumference = 0
-    let rpmForSupersonic = 0
+    var sessionId = null
+    var timer = null
+    var timeout = 0
+    var diskDiameter = 0
+    var diskRadius = 0
+    var diskThickness = 0
+    var diskCount = 0
+    var rpmMax = 0
+    var rpmAvg = 0
+    var acceleration = 0
+    var accelerationMax = 0
+    var angularVelocity = 0
+    var peripherySpeed = 0
+    var distanceTravelled = 0
+    var materialWeight = 0
+    var diskSurfaceAreaGross = 0
+    var diskSurfaceAreaNet = 0
+    var diskVolume = 0
+    var diskMass = 0
+    var totalRotorMass = 0
+    var diskCircumference = 0
+    var rpmForSupersonic = 0
+    var inertia = 0
+    var kineticEnergy = 0
+    var centrifugalForce = 0
     const speedOfSound = 343.2  // meters per second
     const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
 
@@ -58,12 +65,12 @@ $(function()
 
     function applySettings()
     {
-        const diskDiameter = $("#disk-diameter").val()
-        const diskRadius = diskDiameter / 2
-        const diskThickness = $("#disk-thickness").val()
-        const diskCount = $("#disk-count").val()
+        diskDiameter = $("#disk-diameter").val()
+        diskRadius = diskDiameter / 2
+        diskThickness = $("#disk-thickness").val()
+        diskCount = $("#disk-count").val()
 
-        // Set variables
+        // Set global variables
         materialWeight = $("#disk-material").val()
         diskSurfaceAreaGross = Math.PI * diskRadius ** 2
         diskSurfaceAreaNet = diskSurfaceAreaGross * diskMinusPortsPercentage
@@ -213,9 +220,16 @@ $(function()
         })
         rpmChart.update()
 
-        // Reset calculations like averages
+        // Reset calculations
         rpmMax = 0
         rpmAvg = 0
+        acceleration = 0
+        accelerationMax = 0
+        angularVelocity = 0
+        distanceTravelled = 0
+        inertia = 0
+        kineticEnergy = 0
+        centrifugalForce = 0
     }
 
 
@@ -227,10 +241,11 @@ $(function()
     function displayData(data)
     {
         displayRpm(data)
+        displayPower(data)
         
         $("#card-temp .card-text").html(data.temperature + "&deg;")  // @TODO: convert to Fahrenheit if Imperial is selected
 
-        $("#session-id").text(data.sessionId === null ? 'No active session' : data.sessionId)
+        $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
         // How to handle averages? Can't loop through all items every 500ms
         // Should probably add up a total, and then read the length of the array so we know what to divide with
@@ -276,8 +291,9 @@ $(function()
         $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
 
         // Update RPM chart
-        const dataPoints = rpmChart.data.datasets[0].data.length + 1
+        const dataPoints = rpmChart.data.datasets[0].data.length
         let label = dataPoints * loopIntervalMs / 1000  // The x-axis label is the number of seconds since start of session, determined by number of data points * loop interval
+        let rpmOld = dataPoints > 0 ? rpmChart.data.datasets[0].data[dataPoints - 1] : 0  // Grab the last RPM value in the data array
         rpmChart.data.labels.push(label)
         rpmChart.data.datasets[0].data.push(data.rpm)
         rpmChart.update()
@@ -285,17 +301,46 @@ $(function()
         // Calculations
         rpmMax = Math.max(rpmMax, data.rpm)
         rpmAvg = average(rpmChart.data.datasets[0].data)
-        let accelerationOld = acceleration
-        acceleration = 0
-        accelerationMax = Math.max(accelerationOld, acceleration)
-        angularVelocity = 0
-        peripherySpeed = 0
-        distanceTravelled = 0
 
+        peripherySpeed = (diskCircumference * data.rpm) / 60000
+        peripherySpeedOld = (diskCircumference * rpmOld) / 60000
+        
+        let accelerationOld = acceleration
+        acceleration = (peripherySpeed - peripherySpeedOld) / (loopIntervalMs / 1000)  // The acceleration between the last two data points
+        accelerationMax = Math.max(accelerationOld, acceleration)
+        
+        angularVelocity = (data.rpm / 60) * 2 * Math.PI
+        distanceTravelled = distanceTravelled + (peripherySpeed * (loopIntervalMs / 1000))  // Total distance the periphery has travelled in meters this session
 
         // Display the results of the calculations
         $("#rpmMax").text( Math.round(rpmMax) )
         $("#rpmAvg").text( Math.round(rpmAvg) )
+        $("#peripherySpeed").text( Math.round(peripherySpeed) )
+        $("#acceleration").text( Math.round(acceleration) )
+        $("#accelerationMax").text( Math.round(accelerationMax) )
+        $("#angularVelocity").text( Math.round(angularVelocity) )
+        $("#distanceTravelled").text( Math.round(distanceTravelled) )
+    }
+
+
+    /**
+    * Display Power related data
+    * 
+    * @param {object} data JSON object containing one reading of all sensors 
+    */
+    function displayPower(data)
+    {   
+        // TODO: Process Volts and Amps sensor readings
+
+        // Calculate
+        inertia = (0.5 * totalRotorMass * (diskRadius / 1000) ** 2)
+        kineticEnergy = 0.5 * (inertia / 1000) * angularVelocity ** 2
+        centrifugalForce = (totalRotorMass / 1000) * (angularVelocity ** 2) * (diskRadius / 1000)
+
+        // Display
+        $("#inertia").text( Math.round(inertia * 100000) / 100000 )
+        $("#kineticEnergy").text( Math.round(kineticEnergy) )
+        $("#centrifugalForce").text( Math.round(centrifugalForce) )
     }
 
 
