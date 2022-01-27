@@ -28,6 +28,7 @@ $(function()
     var inertia = 0
     var kineticEnergy = 0
     var centrifugalForce = 0
+    const loopIntervalMs = 500  // How often we request data from the sensors
     const speedOfSound = 343.2  // meters per second
     const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
 
@@ -65,12 +66,12 @@ $(function()
 
     function applySettings()
     {
+        // Set global variables
         diskDiameter = $("#disk-diameter").val()
         diskRadius = diskDiameter / 2
         diskThickness = $("#disk-thickness").val()
         diskCount = $("#disk-count").val()
-
-        // Set global variables
+        
         materialWeight = $("#disk-material").val()
         diskSurfaceAreaGross = Math.PI * diskRadius ** 2
         diskSurfaceAreaNet = diskSurfaceAreaGross * diskMinusPortsPercentage
@@ -81,6 +82,10 @@ $(function()
         rpmForSupersonic = (speedOfSound / diskCircumference) * 60000
 
         // Display values
+        $("#diskDiameter").text(diskDiameter)
+        $("#diskThickness").text(diskThickness)
+        $("#diskCount").text(diskCount)
+        $("#diskMaterial").text($("#disk-material option:selected").text())
         $("#materialWeight").text(materialWeight)
         $("#diskSurfaceAreaGross").text( Math.round(diskSurfaceAreaGross * 100) / 100 )
         $("#diskSurfaceAreaNet").text( Math.round(diskSurfaceAreaNet * 100) / 100 )
@@ -231,7 +236,7 @@ $(function()
         kineticEnergy = 0
         centrifugalForce = 0
     }
-
+    
 
     /**
      * Display sensor data on dashboard
@@ -243,7 +248,7 @@ $(function()
         displayRpm(data)
         displayPower(data)
         
-        $("#card-temp .card-text").html(data.temperature + "&deg;")  // @TODO: convert to Fahrenheit if Imperial is selected
+        $("#card-temp .card-text").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
@@ -338,7 +343,7 @@ $(function()
         centrifugalForce = (totalRotorMass / 1000) * (angularVelocity ** 2) * (diskRadius / 1000)
 
         // Display
-        $("#inertia").text( Math.round(inertia * 100000) / 100000 )
+        $("#inertia").text( Math.round(inertia * 1000000) / 1000000 )
         $("#kineticEnergy").text( Math.round(kineticEnergy) )
         $("#centrifugalForce").text( Math.round(centrifugalForce) )
     }
@@ -424,8 +429,6 @@ $(function()
         })
     }
 
-
-    let loopIntervalMs = 5000  // How often we request data from the sensors
 
     /**
      * This loop polls the Python sensor reading script every 500ms for new data
