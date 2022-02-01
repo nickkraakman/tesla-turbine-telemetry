@@ -85,7 +85,7 @@ $(function()
         $("#diskDiameter").text(diskDiameter)
         $("#diskThickness").text(diskThickness)
         $("#diskCount").text(diskCount)
-        $("#diskMaterial").text($("#disk-material option:selected").text())
+        //$("#diskMaterial").text($("#disk-material option:selected").text())
         $("#materialWeight").text(materialWeight)
         $("#diskSurfaceAreaGross").text( Math.round(diskSurfaceAreaGross * 100) / 100 )
         $("#diskSurfaceAreaNet").text( Math.round(diskSurfaceAreaNet * 100) / 100 )
@@ -197,6 +197,10 @@ $(function()
             plugins: {
                 legend: {
                     display: false,  // We're going to need to display a legend when we show 2 readings in one chart
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
                 }
             }
         },
@@ -206,7 +210,14 @@ $(function()
                 label: 'RPM1',
                 data: [],
                 tension: 0.5,
-                borderColor: '#2c7be5'
+                borderColor: '#2c7be5',
+                backgroundColor: '#2c7be5',
+            },{
+                label: 'RPM2',
+                data: [],
+                tension: 0.5,
+                borderColor: '#d2ddec',
+                backgroundColor: '#d2ddec',
             }]
         }
     });
@@ -248,7 +259,11 @@ $(function()
         displayRpm(data)
         displayPower(data)
         
-        $("#card-temp .card-text").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
+        $("#card-temp #temperature1").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
+        $("#card-temp #temperature2").html(data.temperature2 + "&deg;C")
+
+        $("#card-pressure #pressure1").html(data.temperature + " Bar")  // @TODO: convert to PSI if Imperial is selected
+        $("#card-pressure #pressure2").html(data.temperature2 + " Bar")
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
@@ -293,7 +308,8 @@ $(function()
     function displayRpm(data)
     {
         // Display RPM
-        $('#card-rpm .card-text').text(data.rpm.toString().split(/(?=.{3}$)/).join(' ') + ' RPM')  // Add space to separate thousands
+        $('#card-rpm #rpm1').text( data.rpm.toString().split(/(?=.{3}$)/).join(' ') )  // Add space to separate thousands
+        $('#card-rpm #rpm2').text( data.rpm2.toString().split(/(?=.{3}$)/).join(' ') )
 
         // Update RPM chart
         const dataPoints = rpmChart.data.datasets[0].data.length
@@ -301,6 +317,7 @@ $(function()
         let rpmOld = dataPoints > 0 ? rpmChart.data.datasets[0].data[dataPoints - 1] : 0  // Grab the last RPM value in the data array
         rpmChart.data.labels.push(label)
         rpmChart.data.datasets[0].data.push(data.rpm)
+        rpmChart.data.datasets[1].data.push(data.rpm2)
         rpmChart.update()
 
         // Calculations

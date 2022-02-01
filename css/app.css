@@ -80,6 +80,7 @@ footer .footer-powered-by {
     font-size: .875rem;
     line-height: 1.5;
     padding: 1rem 0;
+    text-shadow: 1px 1px 7px rgba(255,255,255,0.7);
 }
 
 .card {
@@ -126,6 +127,31 @@ footer .footer-powered-by {
 .data-unit {
     color: #95aac9;
     padding-left: 0;
+}
+
+.data-lg {
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+legend {
+    color: #95aac9;
+    font-size: 14px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-1 {
+    background-color: #2c7be5;
+}
+
+.dot-2 {
+    background-color: #d2ddec;
 }
 
 .icon {

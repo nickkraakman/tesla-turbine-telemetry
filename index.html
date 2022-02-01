@@ -49,7 +49,23 @@
             </div>
 
             <div class="card-body text-center">
-              <h1 class="card-text">-</h1>
+              <div class="data-horizontal row mb-3">
+                <div class="col">
+                  <legend>
+                    <span class="dot dot-1"></span> RPM 1
+                  </legend>
+    
+                  <div class="data-lg" id="rpm1">-</div>
+                </div>
+
+                <div class="col" class="rpm2-data">
+                  <legend>
+                    <span class="dot dot-2"></span> RPM 2
+                  </legend>
+
+                  <div class="data-lg" id="rpm2">-</div>
+                </div>
+              </div>
 
               <div class="data-wrapper">
                 <div class="row">
@@ -122,12 +138,24 @@
 
           <div class="card" id="card-temp">
             <div class="card-header">
-              <!-- SHOW TEMPERATURE IN AND OUT IN THIS CHART, HOVER SHOWS BOTH VALUES -->
               <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-thermometer mr-2"></i></span> Temperature</h6>
             </div>
             <div class="card-body text-center">
-              <h1 class="card-text">-</h1>
+              <div class="data-horizontal row">
+                <div class="col">
+                  <div class="data-lg" id="temperature1">-</div>
+                </div>
+
+                <div class="col">
+                  <div class="data-lg" id="temperature2">-</div>
+                </div>
+              </div>
+
               <div id="temp-chart"></div>
+
+              <!-- 
+                Todo: add min, max and average temperatures
+              -->
             </div>
           </div>
 
@@ -184,7 +212,15 @@
               <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-loader mr-2"></i></span> Pressure</h6>
             </div>
             <div class="card-body text-center">
-              <h1 class="card-text">-</h1>
+              <div class="data-horizontal row">
+                <div class="col">
+                  <div class="data-lg" id="pressure1">-</div>
+                </div>
+
+                <div class="col">
+                  <div class="data-lg" id="pressure2">-</div>
+                </div>
+              </div>
               <!--
                 Pressure in
                 Pressure out
@@ -235,11 +271,13 @@
                       <div class="col data-unit"></div>
                     </div>
 
+                    <!--
                     <div class="row">
                       <div class="col-5 data-type">Disk material</div>
                       <div class="col-5 data-value" id="diskMaterial">1234</div>
                       <div class="col data-unit"></div>
                     </div>
+                    -->
 
                     <div class="row">
                       <div class="col-5 data-type">Material weight</div>

@@ -46,7 +46,7 @@ def read_sensors():
     sensor_data = {
         'sessionId': session_id,
         'rpm': current_rpm, 
-        'rpm2': 0,
+        'rpm2': read_rpm(2),
         'temperature': read_temperature(),
         'temperature2': read_temperature(2),
         'pressure': read_pressure(),
