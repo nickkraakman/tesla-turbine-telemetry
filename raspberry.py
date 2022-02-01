@@ -46,7 +46,11 @@ def read_sensors():
     sensor_data = {
         'sessionId': session_id,
         'rpm': current_rpm, 
-        'temperature': read_temperature()
+        'rpm2': 0,
+        'temperature': read_temperature(),
+        'temperature2': read_temperature(2),
+        'pressure': read_pressure(),
+        'pressure2': read_pressure(2)
     }
 
     # Only write sensor data if there is an active session
@@ -90,15 +94,43 @@ def write_sensor_data(sensor_data):
     return True
 
 
-def read_rpm():
-    """Determine RPM from period of one rotation in ns"""
+def read_rpm(sensor = 1):
+    """Determine RPM from period of one rotation in ns
+    
+    Args:
+        sensor (int): Which RPM to read (1 or 2)
+
+    Returns: 
+        int: RPM
+    """
+
     rpm = 60 * 1000000000 / period if period > 0 else 0
 
-    return rpm
+    return random.randrange(10000, 200000)  # rpm
 
 
-def read_temperature():
-    """Read temperature sensor(s)"""
+def read_temperature(sensor = 1):
+    """Read temperature sensor(s)
+    
+    Args:
+        sensor (int): Which temperature sensor to read (1 or 2)
+
+    Returns: 
+        int: The temperature
+    """
+
+    return random.randrange(19, 25)
+
+
+def read_pressure(sensor = 1):
+    """Read pressure sensor(s)
+
+    Args:
+        sensor (int): Which pressure sensor to read (1 or 2)
+
+    Returns: 
+        int: The pressure
+    """
 
     return random.randrange(19, 25)
 
