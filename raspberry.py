@@ -92,7 +92,7 @@ def write_sensor_data(sensor_data):
 
 def read_rpm():
     """Determine RPM from period of one rotation in ns"""
-    rpm = 60 * 1000000000 / period
+    rpm = 60 * 1000000000 / period if period > 0 else 0
 
     return rpm
 

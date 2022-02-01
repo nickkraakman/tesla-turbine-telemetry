@@ -28,7 +28,7 @@ $(function()
     var inertia = 0
     var kineticEnergy = 0
     var centrifugalForce = 0
-    const loopIntervalMs = 500  // How often we request data from the sensors
+    const loopIntervalMs = 5000  // How often we request data from the sensors
     const speedOfSound = 343.2  // meters per second
     const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
 
