@@ -262,8 +262,8 @@ $(function()
         $("#card-temp #temperature1").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
         $("#card-temp #temperature2").html(data.temperature2 + "&deg;C")
 
-        $("#card-pressure #pressure1").html(data.temperature + " Bar")  // @TODO: convert to PSI if Imperial is selected
-        $("#card-pressure #pressure2").html(data.temperature2 + " Bar")
+        $("#card-pressure #pressure1").html(data.pressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
+        $("#card-pressure #pressure2").html(data.pressure2 + " Bar")
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 

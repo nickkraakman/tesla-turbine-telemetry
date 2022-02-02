@@ -1,9 +1,11 @@
 import raspberry
 import threading
-import webbrowser
 import http.server
 import socketserver
 import json
+import io
+import os
+import webbrowser
 
 
 PORT = 8000
@@ -50,10 +52,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json_response_string.encode(encoding='utf-8'))
 
 
+def is_raspberrypi():
+    """Check whether this code is running on a Raspberry Pi or not"""
+    try:
+        with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
+            if 'raspberry pi' in m.read().lower(): return True
+    except Exception: pass
+    return False
+
+
 def open_browser():
     """Start a browser showing the dashboard after waiting for half a second."""
     def _open_browser():
-        webbrowser.open('http://localhost:%s/' % (PORT))
+        if is_raspberrypi == True:
+            os.system('chromium-browser --noerrdialogs --disable-infobars --check-for-update-interval=31536000 --kiosk "http://localhost:%s/" & ' % (PORT))
+        else:
+            webbrowser.open('http://localhost:%s/' % (PORT))
     thread = threading.Timer(0.5, _open_browser)
     thread.start()
  
