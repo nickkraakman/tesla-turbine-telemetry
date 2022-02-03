@@ -458,6 +458,21 @@ $(function()
     }
 
 
+    // Show / hide additional stats
+    $("#more-stats-btn").on( "click", function() 
+    {
+        if ( $("#more-stats-btn .fe").hasClass("fe-eye") ) {
+            console.log("hasClass fe-eye")
+            $(".data-wrapper").hide()
+            $("#more-stats-btn .fe").removeClass("fe-eye").addClass("fe-eye-off")
+        } else {
+            console.log("NOT hasClass fe-eye")
+            $(".data-wrapper").show()
+            $("#more-stats-btn .fe").removeClass("fe-eye-off").addClass("fe-eye")
+        }
+    })
+
+
     $("#valve-btn").on( "click", function() 
     {
         let currentState = $(this).data( "state" )
