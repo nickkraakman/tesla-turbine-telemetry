@@ -140,8 +140,16 @@
             <div class="card-header">
               <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-thermometer mr-2"></i></span> Temperature</h6>
             </div>
+            
+            <!--
+            <div class="card-chart">
+              <div id="temp-chart"></div>
+            </div>
+            -->
+
             <div class="card-body text-center">
-              <div class="data-horizontal row">
+
+              <div class="data-horizontal row mb-3">
                 <div class="col">
                   <div class="data-lg" id="temperature1">-</div>
                 </div>
@@ -151,11 +159,66 @@
                 </div>
               </div>
 
-              <div id="temp-chart"></div>
+              <div class="data-wrapper">
+                <div class="row">
+                  <div class="col-md">
 
-              <!-- 
-                Todo: add min, max and average temperatures
-              -->
+                    <div class="row">
+                      <div class="col-5 data-type">Temperature min</div>
+                      <div class="col-3 data-value" id="temperatureMin">1234</div>
+                      <div class="col-3 data-value" id="temperatureMin2">1234</div>
+                      <div class="col data-unit">&deg;C</div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-5 data-type">Temperature max</div>
+                      <div class="col-3 data-value" id="temperatureMax">1234</div>
+                      <div class="col-3 data-value" id="temperatureMax2">1234</div>
+                      <div class="col data-unit">&deg;C</div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="card-pressure">
+            <div class="card-header">
+              <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-loader mr-2"></i></span> Pressure</h6>
+            </div>
+            <div class="card-body text-center">
+              <div class="data-horizontal row mb-3">
+                <div class="col">
+                  <div class="data-lg" id="pressure1">-</div>
+                </div>
+
+                <div class="col">
+                  <div class="data-lg" id="pressure2">-</div>
+                </div>
+              </div>
+              
+              <div class="data-wrapper">
+                <div class="row">
+                  <div class="col-md">
+
+                    <div class="row">
+                      <div class="col-5 data-type">Pressure min</div>
+                      <div class="col-3 data-value" id="pressureMin">1234</div>
+                      <div class="col-3 data-value" id="pressureMin2">1234</div>
+                      <div class="col data-unit">Bar</div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-5 data-type">Pressure max</div>
+                      <div class="col-3 data-value" id="pressureMax">1234</div>
+                      <div class="col-3 data-value" id="pressureMax2">1234</div>
+                      <div class="col data-unit">Bar</div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -204,29 +267,6 @@
                   Centrifugal force in Newton & Kg, and G force
                 -->
               </div>
-            </div>
-          </div>
-
-          <div class="card" id="card-pressure">
-            <div class="card-header">
-              <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-loader mr-2"></i></span> Pressure</h6>
-            </div>
-            <div class="card-body text-center">
-              <div class="data-horizontal row">
-                <div class="col">
-                  <div class="data-lg" id="pressure1">-</div>
-                </div>
-
-                <div class="col">
-                  <div class="data-lg" id="pressure2">-</div>
-                </div>
-              </div>
-              <!--
-                Pressure in
-                Pressure out
-
-                In PSI and Bar
-              -->
             </div>
           </div>
 

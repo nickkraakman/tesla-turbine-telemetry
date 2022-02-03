@@ -12,6 +12,14 @@ $(function()
     var diskCount = 0
     var rpmMax = 0
     var rpmAvg = 0
+    var temperatureMin = null
+    var temperatureMin2 = null
+    var temperatureMax = null
+    var temperatureMax2 = null
+    var pressureMin = null
+    var pressureMin2 = null
+    var pressureMax = null
+    var pressureMax2 = null
     var acceleration = 0
     var accelerationMax = 0
     var angularVelocity = 0
@@ -194,6 +202,9 @@ $(function()
                     }
                 }
             },
+            animation: {
+                duration: 0
+            },
             plugins: {
                 legend: {
                     display: false,  // We're going to need to display a legend when we show 2 readings in one chart
@@ -239,6 +250,14 @@ $(function()
         // Reset calculations
         rpmMax = 0
         rpmAvg = 0
+        temperatureMin = null
+        temperatureMin2 = null
+        temperatureMax = null
+        temperatureMax2 = null
+        pressureMin = null
+        pressureMin2 = null
+        pressureMax = null
+        pressureMax2 = null
         acceleration = 0
         accelerationMax = 0
         angularVelocity = 0
@@ -257,13 +276,9 @@ $(function()
     function displayData(data)
     {
         displayRpm(data)
+        displayTemperature(data)
+        displayPressure(data)
         displayPower(data)
-        
-        $("#card-temp #temperature1").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
-        $("#card-temp #temperature2").html(data.temperature2 + "&deg;C")
-
-        $("#card-pressure #pressure1").html(data.pressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
-        $("#card-pressure #pressure2").html(data.pressure2 + " Bar")
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
@@ -346,10 +361,60 @@ $(function()
 
 
     /**
-    * Display Power related data
-    * 
-    * @param {object} data JSON object containing one reading of all sensors 
-    */
+     * Display temperature related data
+     * 
+     * @param {object} data JSON object containing one reading of all sensors 
+     */
+    function displayTemperature(data)
+    {   
+        // Display temperature
+        $("#card-temp #temperature1").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
+        $("#card-temp #temperature2").html(data.temperature2 + "&deg;C")
+
+        // Calculate
+        temperatureMin = temperatureMin === null ? data.temperature : Math.min(temperatureMin, data.temperature)
+        temperatureMin2 = temperatureMin2 === null ? data.temperature2 : Math.min(temperatureMin2, data.temperature2)
+        temperatureMax = temperatureMax === null ? data.temperature : Math.max(temperatureMax, data.temperature)
+        temperatureMax2 = temperatureMax2 === null ? data.temperature2 : Math.max(temperatureMax2, data.temperature2)
+
+        // Display
+        $("#temperatureMin").text( temperatureMin )
+        $("#temperatureMin2").text( temperatureMin2 )
+        $("#temperatureMax").text( temperatureMax )
+        $("#temperatureMax2").text( temperatureMax2 )
+    }
+
+
+    /**
+     * Display pressure related data
+     * 
+     * @param {object} data JSON object containing one reading of all sensors 
+     */
+    function displayPressure(data)
+    {   
+        // Display pressure
+        $("#card-pressure #pressure1").html(data.pressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
+        $("#card-pressure #pressure2").html(data.pressure2 + " Bar")
+
+        // Calculate
+        pressureMin = pressureMin === null ? data.pressure : Math.min(pressureMin, data.pressure)
+        pressureMin2 = pressureMin2 === null ? data.pressure2 : Math.min(pressureMin2, data.pressure2)
+        pressureMax = pressureMax === null ? data.pressure : Math.max(pressureMax, data.pressure)
+        pressureMax2 = pressureMax2 === null ? data.pressure2 : Math.max(pressureMax2, data.pressure2)
+
+        // Display
+        $("#pressureMin").text( pressureMin )
+        $("#pressureMin2").text( pressureMin2 )
+        $("#pressureMax").text( pressureMax )
+        $("#pressureMax2").text( pressureMax2 )
+    }
+
+
+    /**
+     * Display Power related data
+     * 
+     * @param {object} data JSON object containing one reading of all sensors 
+     */
     function displayPower(data)
     {   
         // TODO: Process Volts and Amps sensor readings
