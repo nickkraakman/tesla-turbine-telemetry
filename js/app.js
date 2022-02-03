@@ -498,7 +498,7 @@ $(function()
 
         $.ajax({
             type: "POST",
-            url: "server.py",
+            url: "http://localhost:8000/valve",
             contentType: "json",
             dataType: "json",
             data: JSON.stringify(request_data),
@@ -538,7 +538,7 @@ $(function()
 
         $.ajax({
             type: "POST",
-            url: "server.py",
+            url: "http://localhost:8000/sensors",
             contentType: "json",
             dataType: "json",
             data: JSON.stringify(request_data),

@@ -2,7 +2,9 @@ import datetime
 import time
 import csv
 import os
-import RPi.GPIO as gpio
+import sys
+import signal
+import RPi.GPIO as GPIO
 
 import random
 
@@ -32,8 +34,7 @@ def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
 
-    global session_id
-    global previous_rpm
+    global session_id, previous_rpm
 
     current_rpm = read_rpm()
 
@@ -104,6 +105,8 @@ def read_rpm(sensor = 1):
         int: RPM
     """
 
+    global period
+
     rpm = 60 * 1000000000 / period if period > 0 else 0
 
     return random.randrange(10000, 200000)  # rpm
@@ -147,29 +150,35 @@ def close_valve():
     return { "valveOpen": False }
 
 
-def tacho_callback():
+def signal_handler(signal, frame):
+    """CTRL-C Handler"""
+    del signal
+    del frame
+    sys.stdout.write('\n')
+    print("Ctrl-C pressed, exiting.")
+    GPIO.cleanup()
+    exit(0)
+
+
+def tacho_callback(channel):
     """Called by pin interrupt each on each rotation"""
-    global period
-    global last_trigger
+    global period, last_trigger
 
     time_now = time.time_ns()
     period = time_now - last_trigger
     last_trigger = time_now
 
 
-def main():
-    """Main, used to setup sensor pins"""
-    gpio.setmode(gpio.BCM) # Use Broadcom GPIO pin numbering
+def init():
+    """Setup sensor pins"""
+    GPIO.setmode(GPIO.BCM) # Use Broadcom GPIO pin numbering
 
     # GPIO 4 is the one we want to count.  Set it up
     # as an input, no pull-up/down required.
-    gpio.setup(TACHO_PIN, gpio.IN)
+    GPIO.setup(TACHO_PIN, GPIO.IN)
 
     # When a falling edge is detected on TACHO_PIN run the callback
-    gpio.add_event_detect(TACHO_PIN, gpio.FALLING, callback=tacho_callback)
+    GPIO.add_event_detect(TACHO_PIN, GPIO.FALLING, callback=tacho_callback)
 
-    gpio.cleanup()
-
-
-if __name__ == "__main__":
-    main()
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.pause()  # Can also be a while True:, just can't exit the program

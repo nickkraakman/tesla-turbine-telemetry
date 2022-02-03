@@ -52,6 +52,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json_response_string.encode(encoding='utf-8'))
 
 
+class ThreadingSimpleServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    pass
+
+
 def is_raspberrypi():
     """Check whether this code is running on a Raspberry Pi or not"""
     try:
@@ -74,11 +78,12 @@ def open_browser():
 
 def start_server():
     """Start the server."""
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print("serving at port", PORT)
-        httpd.serve_forever()
+    with ThreadingSimpleServer(("", PORT), Handler) as server:
+        print("Serving at port", PORT)
+        server.serve_forever()
 
 
 if __name__ == "__main__":
     open_browser()
     start_server()
+    raspberry.init()
