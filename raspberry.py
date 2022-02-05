@@ -2,11 +2,9 @@ import datetime
 import time
 import csv
 import os
-import sys
-import signal
 import RPi.GPIO as GPIO
 
-import random
+import random  # Remove once all sensor functions are fully implemented
 
 TACHO_PIN = 4
 
@@ -150,16 +148,6 @@ def close_valve():
     return { "valveOpen": False }
 
 
-def signal_handler(signal, frame):
-    """CTRL-C Handler"""
-    del signal
-    del frame
-    sys.stdout.write('\n')
-    print("Ctrl-C pressed, exiting.")
-    GPIO.cleanup()
-    exit(0)
-
-
 def tacho_callback(channel):
     """Called by pin interrupt each on each rotation"""
     global period, last_trigger
@@ -180,5 +168,9 @@ def init():
     # When a falling edge is detected on TACHO_PIN run the callback
     GPIO.add_event_detect(TACHO_PIN, GPIO.FALLING, callback=tacho_callback)
 
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.pause()  # Can also be a while True:, just can't exit the program
+    try:
+        while True:
+            time.sleep(0.1)
+    except KeyboardInterrupt:  # Keyboard interrupt will never be used, consider using atexit.register() instead
+        print ("   Quit")
+        GPIO.cleanup()
