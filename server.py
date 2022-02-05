@@ -81,11 +81,11 @@ def start_server():
 
 def init_raspberry():
     """Initialize the Raspberry Pi sensors"""
-    thread = threading.Timer(0.5, raspberry.init())
+    thread = threading.Timer(0.5, raspberry.init)
     thread.start()
 
 
 if __name__ == "__main__":
-    open_browser()
     init_raspberry()
+    open_browser()
     start_server()
