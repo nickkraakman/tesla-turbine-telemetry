@@ -408,8 +408,8 @@ $(function()
             let temperature = dataModel.temperature[index]
 
             // Calculate
-            temperature.temperatureMin = temperature.temperatureMin === null ? data.temperature : Math.min(temperature.temperatureMin, data.temperature)
-            temperature.temperatureMax = temperature.temperatureMax === null ? data.temperature : Math.max(temperature.temperatureMax, data.temperature)
+            temperature.temperatureMin = temperature.temperatureMin === null ? data['temperature' + i] : Math.min(temperature.temperatureMin, data['temperature' + i])
+            temperature.temperatureMax = temperature.temperatureMax === null ? data['temperature' + i] : Math.max(temperature.temperatureMax, data['temperature' + i])
 
             // Display
             $("#temperatureMin" + i).text( temperature.temperatureMin )
@@ -433,8 +433,8 @@ $(function()
             let pressure = dataModel.pressure[index]
 
             // Calculate
-            pressure.pressureMin = pressure.pressureMin === null ? data.pressure : Math.min(pressure.pressureMin, data.pressure)
-            pressure.pressureMax = pressure.pressureMax === null ? data.pressure : Math.max(pressure.pressureMax, data.pressure)
+            pressure.pressureMin = pressure.pressureMin === null ? data['pressure' + i] : Math.min(pressure.pressureMin, data['pressure' + i])
+            pressure.pressureMax = pressure.pressureMax === null ? data['pressure' + i] : Math.max(pressure.pressureMax, data['pressure' + i])
 
             // Display
             $("#pressureMin" + i).text( pressure.pressureMin )
