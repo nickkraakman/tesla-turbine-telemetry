@@ -133,6 +133,8 @@ $(function()
         } else {
             $(".two-stage").hide()
         }
+
+        // @TODO: reset graph? Else # of dataPoints might differ per stage
     }
 
     function saveSettings()
