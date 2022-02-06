@@ -59,10 +59,10 @@
                     <span class="dot dot-1"></span> RPM 1
                   </legend>
     
-                  <div class="data-lg" id="rpm1">-</div>
+                  <div class="data-lg" id="rpm">-</div>
                 </div>
 
-                <div class="col" class="rpm2-data">
+                <div class="col two-stage">
                   <legend>
                     <span class="dot dot-2"></span> RPM 2
                   </legend>
@@ -76,44 +76,51 @@
                   <div class="col-md">
 
                     <div class="row">
-                      <div class="col-5 data-type">RPM max</div>
-                      <div class="col-5 data-value" id="rpmMax">-</div>
+                      <div class="col-4 data-type">RPM max</div>
+                      <div class="col-3 data-value" id="rpmMax">-</div>
+                      <div class="col-3 data-value" id="rpmMax2">-</div>
                       <div class="col data-unit">rpm</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">RPM avg</div>
-                      <div class="col-5 data-value" id="rpmAvg">-</div>
+                      <div class="col-4 data-type">RPM avg</div>
+                      <div class="col-3 data-value" id="rpmAvg">-</div>
+                      <div class="col-3 data-value" id="rpmAvg2">-</div>
                       <div class="col data-unit">rpm</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Periphery speed</div>
-                      <div class="col-5 data-value" id="peripherySpeed">-</div>
+                      <div class="col-4 data-type">Periphery speed</div>
+                      <div class="col-3 data-value" id="peripherySpeed">-</div>
+                      <div class="col-3 data-value" id="peripherySpeed2">-</div>
                       <div class="col data-unit">km/h</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Acceleration</div>
-                      <div class="col-5 data-value" id="acceleration">-</div>
+                      <div class="col-4 data-type">Acceleration</div>
+                      <div class="col-3 data-value" id="acceleration">-</div>
+                      <div class="col-3 data-value" id="acceleration2">-</div>
                       <div class="col data-unit">m/s/s</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Acceleration max</div>
-                      <div class="col-5 data-value" id="accelerationMax">-</div>
+                      <div class="col-4 data-type">Acceleration max</div>
+                      <div class="col-3 data-value" id="accelerationMax">-</div>
+                      <div class="col-3 data-value" id="accelerationMax2">-</div>
                       <div class="col data-unit">m/s/s</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Angular velocity</div>
-                      <div class="col-5 data-value" id="angularVelocity">-</div>
+                      <div class="col-4 data-type">Angular velocity</div>
+                      <div class="col-3 data-value" id="angularVelocity">-</div>
+                      <div class="col-3 data-value" id="angularVelocity2">-</div>
                       <div class="col data-unit">rad/s</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Distance travelled</div>
-                      <div class="col-5 data-value" id="distanceTravelled">-</div>
+                      <div class="col-4 data-type">Distance travelled</div>
+                      <div class="col-3 data-value" id="distanceTravelled">-</div>
+                      <div class="col-3 data-value" id="distanceTravelled2">-</div>
                       <div class="col data-unit">m</div>
                     </div>
                   </div>
@@ -155,7 +162,7 @@
 
               <div class="data-horizontal row mb-3">
                 <div class="col">
-                  <div class="data-lg" id="temperature1">-</div>
+                  <div class="data-lg" id="temperature">-</div>
                 </div>
 
                 <div class="col">
@@ -194,7 +201,7 @@
             <div class="card-body text-center">
               <div class="data-horizontal row mb-3">
                 <div class="col">
-                  <div class="data-lg" id="pressure1">-</div>
+                  <div class="data-lg" id="pressure">-</div>
                 </div>
 
                 <div class="col">
@@ -238,20 +245,23 @@
                   <div class="col-md">
 
                     <div class="row">
-                      <div class="col-5 data-type">Inertia</div>
-                      <div class="col-5 data-value" id="inertia">-</div>
+                      <div class="col-4 data-type">Inertia</div>
+                      <div class="col-3 data-value" id="inertia">-</div>
+                      <div class="col-3 data-value" id="inertia2">-</div>
                       <div class="col data-unit">g m2</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Kinetic energy</div>
-                      <div class="col-5 data-value" id="kineticEnergy">-</div>
+                      <div class="col-4 data-type">Kinetic energy</div>
+                      <div class="col-3 data-value" id="kineticEnergy">-</div>
+                      <div class="col-3 data-value" id="kineticEnergy2">-</div>
                       <div class="col data-unit">Joules</div>
                     </div>
 
                     <div class="row">
-                      <div class="col-5 data-type">Centrifugal force</div>
-                      <div class="col-5 data-value" id="centrifugalForce">-</div>
+                      <div class="col-4 data-type">Centrifugal force</div>
+                      <div class="col-3 data-value" id="centrifugalForce">-</div>
+                      <div class="col-3 data-value" id="centrifugalForce2">-</div>
                       <div class="col data-unit">Newton</div>
                     </div>
 
@@ -429,62 +439,117 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
-            <div class="input-group input-group-sm mb-2">
-              <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28" step="1" min="0">
-              <div class="input-group-append">
-                <div class="input-group-text unit">mm</div>
+          <hr>
+
+          <div id="stage-1-settings">
+
+            <h6>Stage 1</h6>
+
+            <div class="form-group">
+              <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-diameter" name="disk-diameter" value="28" step="1" min="0">
+                <div class="input-group-append">
+                  <div class="input-group-text unit">mm</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
-            <div class="input-group input-group-sm mb-2">
-              <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1" min="0">
-              <div class="input-group-append">
-                <div class="input-group-text unit">mm</div>
+            <div class="form-group">
+              <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-thickness" name="disk-thickness" value="2.8" step="0.1" min="0">
+                <div class="input-group-append">
+                  <div class="input-group-text unit">mm</div>
+                </div>
               </div>
             </div>
+
+            <div class="form-group">
+              <label for="disk-count" class="col-form-label-sm"># disks</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-count" name="disk-count" value="2">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="disk-material" class="col-form-label-sm">Disk material</label>
+              <div class="input-group input-group-sm mb-2">
+                <select class="form-control form-control-sm" id="disk-material" name="disk-material">
+                  <!-- Values are weight in g/cm3 -->
+                  <option value="2.81">Aluminium 7075-T6</option>
+                  <option value="1.81">Carbon fiber</option>
+                  <option value="7.99">Stainless steel 316</option>
+                  <option value="7.87">Mild steel</option>
+                  <option value="4.43">Grade 5 titanium</option>
+                  <option value="1.4">PLA</option>
+                </select>
+              </div>
+            </div>  
+
           </div>
 
-          <div class="form-group">
-            <label for="disk-count" class="col-form-label-sm"># disks</label>
-            <div class="input-group input-group-sm mb-2">
-              <input type="number" class="form-control form-control-sm" id="disk-count" name="disk-count" value="2">
-            </div>
+          <hr>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" value="" id="two-stage" name="two-stage">
+            <label class="form-check-label" for="two-stage">
+              Enable stage 2
+            </label>
           </div>
 
-          <div class="form-group">
-            <label for="disk-material" class="col-form-label-sm">Disk material</label>
-            <div class="input-group input-group-sm mb-2">
-              <select class="form-control form-control-sm" id="disk-material" name="disk-material">
-                <!-- Values are weight in g/cm3 -->
-                <option value="2.81">Aluminium 7075-T6</option>
-                <option value="1.81">Carbon fiber</option>
-                <option value="7.99">Stainless steel 316</option>
-                <option value="7.87">Mild steel</option>
-                <option value="4.43">Grade 5 titanium</option>
-                <option value="1.4">PLA</option>
-              </select>
+          <div class="two-stage" id="stage-2-settings">
+            
+            <h6>Stage 2</h6>
+
+            <div class="form-group">
+              <label for="disk-diameter" class="col-form-label-sm">Disk diameter</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-diameter2" name="disk-diameter2" value="28" step="1" min="0">
+                <div class="input-group-append">
+                  <div class="input-group-text unit">mm</div>
+                </div>
+              </div>
             </div>
+
+            <div class="form-group">
+              <label for="disk-thickness" class="col-form-label-sm">Disk thickness</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-thickness2" name="disk-thickness2" value="2.8" step="0.1" min="0">
+                <div class="input-group-append">
+                  <div class="input-group-text unit">mm</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="disk-count" class="col-form-label-sm"># disks</label>
+              <div class="input-group input-group-sm mb-2">
+                <input type="number" class="form-control form-control-sm" id="disk-count2" name="disk-count2" value="2">
+              </div>
+            </div>
+
+            <div class="form-group mb-4">
+              <label for="disk-material" class="col-form-label-sm">Disk material</label>
+              <div class="input-group input-group-sm mb-2">
+                <select class="form-control form-control-sm" id="disk-material2" name="disk-material2">
+                  <!-- Values are weight in g/cm3 -->
+                  <option value="2.81">Aluminium 7075-T6</option>
+                  <option value="1.81">Carbon fiber</option>
+                  <option value="7.99">Stainless steel 316</option>
+                  <option value="7.87">Mild steel</option>
+                  <option value="4.43">Grade 5 titanium</option>
+                  <option value="1.4">PLA</option>
+                </select>
+              </div>
+            </div>
+
+            <br><br>
+
           </div>
-          
+
         </form>
       </div>
-
-      <!--
-        disk diameter
-        disk thickness
-        disk material
-        # disks
-        //disk spacing >> we don't use this yet
-        port area
-        # of ports
-
-        Show / hide cards
-      -->
     </div> 
   </div> 
       

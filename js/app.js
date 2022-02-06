@@ -6,39 +6,64 @@ $(function()
     var sessionId = null
     var timer = null
     var timeout = 0
-    var diskDiameter = 0
-    var diskRadius = 0
-    var diskThickness = 0
-    var diskCount = 0
-    var rpmMax = 0
-    var rpmAvg = 0
-    var temperatureMin = null
-    var temperatureMin2 = null
-    var temperatureMax = null
-    var temperatureMax2 = null
-    var pressureMin = null
-    var pressureMin2 = null
-    var pressureMax = null
-    var pressureMax2 = null
-    var acceleration = 0
-    var accelerationMax = 0
-    var angularVelocity = 0
-    var peripherySpeed = 0
-    var distanceTravelled = 0
-    var materialWeight = 0
-    var diskSurfaceAreaGross = 0
-    var diskSurfaceAreaNet = 0
-    var diskVolume = 0
-    var diskMass = 0
-    var totalRotorMass = 0
-    var diskCircumference = 0
-    var rpmForSupersonic = 0
-    var inertia = 0
-    var kineticEnergy = 0
-    var centrifugalForce = 0
+    var twoStage = true
+
+    // Constants
     const loopIntervalMs = 5000  // How often we request data from the sensors
     const speedOfSound = 343.2  // meters per second
     const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
+
+    // Define models
+    var rotorModel = {
+        diskDiameter: 0,
+        diskRadius: 0,
+        diskThickness: 0,
+        diskCount: 0,
+        materialWeight: 0,
+        diskSurfaceAreaGross: 0,
+        diskSurfaceAreaNet: 0,
+        diskVolume: 0,
+        diskMass: 0,
+        totalRotorMass: 0,
+        diskCircumference: 0,
+        rpmForSupersonic: 0,
+    }
+
+    var speedModel = {
+        rpmMax: 0,
+        rpmAvg: 0,
+        acceleration: 0,
+        accelerationMax: 0,
+        angularVelocity: 0,
+        peripherySpeed: 0,
+        distanceTravelled: 0,
+    }
+
+    var powerModel = {
+        inertia: 0,
+        kineticEnergy: 0,
+        centrifugalForce: 0,
+    }
+
+    var temperatureModel = {
+        temperatureMin: null,
+        temperatureMax: null,
+    }
+
+    var pressureModel = {
+        pressureMin: null,
+        pressureMax: null,
+    }
+
+    // Define main data model
+    // Have to use Object.create() to create new models instead of references
+    var dataModel = {
+        rotor: [Object.create(rotorModel), Object.create(rotorModel)],
+        speed: [Object.create(speedModel), Object.create(speedModel)],
+        power: [Object.create(powerModel), Object.create(powerModel)],
+        temperature: [Object.create(temperatureModel), Object.create(temperatureModel)],
+        pressure: [Object.create(pressureModel), Object.create(pressureModel)],
+    }
 
 
     /**
@@ -75,33 +100,39 @@ $(function()
     function applySettings()
     {
         // Set global variables
-        diskDiameter = $("#disk-diameter").val()
-        diskRadius = diskDiameter / 2
-        diskThickness = $("#disk-thickness").val()
-        diskCount = $("#disk-count").val()
+        twoStage = $("#two-stage").is(":checked")
         
-        materialWeight = $("#disk-material").val()
-        diskSurfaceAreaGross = Math.PI * diskRadius ** 2
-        diskSurfaceAreaNet = diskSurfaceAreaGross * diskMinusPortsPercentage
-        diskVolume = (diskSurfaceAreaNet * diskThickness) / 1000
-        diskMass = materialWeight * diskVolume
-        totalRotorMass = diskMass * diskCount
-        diskCircumference = Math.PI * diskDiameter
-        rpmForSupersonic = (speedOfSound / diskCircumference) * 60000
+        for (let index = 0; index <= 1; index++) {
+            let i = index === 1 ? "2" : ""
 
-        // Display values
-        $("#diskDiameter").text(diskDiameter)
-        $("#diskThickness").text(diskThickness)
-        $("#diskCount").text(diskCount)
-        //$("#diskMaterial").text($("#disk-material option:selected").text())
-        $("#materialWeight").text(materialWeight)
-        $("#diskSurfaceAreaGross").text( Math.round(diskSurfaceAreaGross * 100) / 100 )
-        $("#diskSurfaceAreaNet").text( Math.round(diskSurfaceAreaNet * 100) / 100 )
-        $("#diskVolume").text( Math.round(diskVolume * 100) / 100 )
-        $("#diskMass").text( Math.round(diskMass * 100) / 100 )
-        $("#totalRotorMass").text( Math.round(totalRotorMass * 100) / 100 )
-        $("#diskCircumference").text( Math.round(diskCircumference * 100) / 100 )
-        $("#rpmForSupersonic").text( Math.round(rpmForSupersonic) )
+            let rotor = dataModel.rotor[index]
+
+            rotor.diskDiameter = Number( $("#disk-diameter" + i).val() )
+            rotor.diskRadius = rotor.diskDiameter / 2
+            rotor.diskThickness = Number( $("#disk-thickness" + i).val() )
+            rotor.diskCount = Number( $("#disk-count" + i).val() )
+            rotor.materialWeight = Number( $("#disk-material" + i).val() )
+            rotor.diskSurfaceAreaGross = Math.PI * rotor.diskRadius ** 2
+            rotor.diskSurfaceAreaNet = rotor.diskSurfaceAreaGross * diskMinusPortsPercentage
+            rotor.diskVolume = (rotor.diskSurfaceAreaNet * rotor.diskThickness) / 1000
+            rotor.diskMass = rotor.materialWeight * rotor.diskVolume
+            rotor.totalRotorMass = rotor.diskMass * rotor.diskCount
+            rotor.diskCircumference = Math.max(Math.PI * rotor.diskDiameter, 0.001)  // Max to prevent division by zero errors
+            rotor.rpmForSupersonic = (speedOfSound / rotor.diskCircumference) * 60000
+
+            // Display values
+            Object.keys(rotorModel).filter(element => element !== "diskMaterial").forEach(element => {
+                $("#" + element + i).text( Math.round(rotor[element] * 100) / 100 )
+            })
+        }
+
+        console.log('dataModel', dataModel)
+
+        if (twoStage) {
+            $(".two-stage").show()
+        } else {
+            $(".two-stage").hide()
+        }
     }
 
     function saveSettings()
@@ -112,10 +143,20 @@ $(function()
         localStorage.removeItem('settings')
 
         // Loop through form input fields
-        $("#settings-form input[type=number], #settings-form select, #settings-form input[type=radio]:checked").each(function() {
+        $("#settings-form input[type=number], #settings-form input[type=checkbox], #settings-form select, #settings-form input[type=radio]:checked").each(function() {
+            let value = null
+
+            if ($(this).attr('type') === "radio") {
+                value = this.id
+            } else if ($(this).attr('type') === "checkbox") {
+                value = $(this).is(":checked") ? true : false
+            } else {
+                value = this.value
+            }
+            
             formData.push({ 
                 name: this.name, 
-                value: $(this).attr('type') === "radio" ? this.id : this.value,
+                value: value,
                 type: $(this).attr('type')
             })
         })
@@ -129,9 +170,10 @@ $(function()
         if (localStorage.settings != undefined) {
             settings  = JSON.parse(localStorage.settings)
             for (var i = 0; i < settings.length; i++) {
-                if (settings[i].type != undefined && settings[i].type == "radio")
-                {
+                if (settings[i].type != undefined && settings[i].type == "radio") {
                     $("#" + settings[i].value).prop('checked', true)
+                } else if (settings[i].type != undefined && settings[i].type == "checkbox") {
+                    $("[name=" + settings[i].name + "]").prop("checked", settings[i].value)
                 } else {
                     $("[name=" + settings[i].name + "]").val(settings[i].value)
                 }
@@ -161,7 +203,7 @@ $(function()
 
         timeout = setTimeout(function() {
             saveSettings()
-        }, 3000)
+        }, 2000)
     })
 
     $("#settings-form input[name=units]").on( "change", function() {
@@ -247,24 +289,14 @@ $(function()
         })
         rpmChart.update()
 
-        // Reset calculations
-        rpmMax = 0
-        rpmAvg = 0
-        temperatureMin = null
-        temperatureMin2 = null
-        temperatureMax = null
-        temperatureMax2 = null
-        pressureMin = null
-        pressureMin2 = null
-        pressureMax = null
-        pressureMax2 = null
-        acceleration = 0
-        accelerationMax = 0
-        angularVelocity = 0
-        distanceTravelled = 0
-        inertia = 0
-        kineticEnergy = 0
-        centrifugalForce = 0
+        // Reset main data model
+        dataModel = {
+            rotor: [rotorModel, rotorModel],
+            speed: [speedModel, speedModel],
+            power: [powerModel, powerModel],
+            temperature: [temperatureModel, temperatureModel],
+            pressure: [pressureModel, pressureModel],
+        }
     }
     
 
@@ -322,41 +354,42 @@ $(function()
      */
     function displayRpm(data)
     {
-        // Display RPM
-        $('#card-rpm #rpm1').text( data.rpm.toString().split(/(?=.{3}$)/).join(' ') )  // Add space to separate thousands
-        $('#card-rpm #rpm2').text( data.rpm2.toString().split(/(?=.{3}$)/).join(' ') )
-
         // Update RPM chart
         const dataPoints = rpmChart.data.datasets[0].data.length
         let label = dataPoints * loopIntervalMs / 1000  // The x-axis label is the number of seconds since start of session, determined by number of data points * loop interval
         let rpmOld = dataPoints > 0 ? rpmChart.data.datasets[0].data[dataPoints - 1] : 0  // Grab the last RPM value in the data array
         rpmChart.data.labels.push(label)
         rpmChart.data.datasets[0].data.push(data.rpm)
-        rpmChart.data.datasets[1].data.push(data.rpm2)
+        if (twoStage) { rpmChart.data.datasets[1].data.push(data.rpm2) }
         rpmChart.update()
 
         // Calculations
-        rpmMax = Math.max(rpmMax, data.rpm)
-        rpmAvg = average(rpmChart.data.datasets[0].data)
+        for (let index = 0; index < dataModel.speed.length; index++) {
+            let i = index === 1 ? "2" : ""
 
-        peripherySpeed = (diskCircumference * data.rpm) / 60000
-        peripherySpeedOld = (diskCircumference * rpmOld) / 60000
-        
-        let accelerationOld = acceleration
-        acceleration = (peripherySpeed - peripherySpeedOld) / (loopIntervalMs / 1000)  // The acceleration between the last two data points
-        accelerationMax = Math.max(accelerationOld, acceleration)
-        
-        angularVelocity = (data.rpm / 60) * 2 * Math.PI
-        distanceTravelled = distanceTravelled + (peripherySpeed * (loopIntervalMs / 1000))  // Total distance the periphery has travelled in meters this session
+            $('#card-rpm #rpm' + i).text( data['rpm' + i].toString().split(/(?=.{3}$)/).join(' ') )  // Add space to separate thousands
 
-        // Display the results of the calculations
-        $("#rpmMax").text( Math.round(rpmMax) )
-        $("#rpmAvg").text( Math.round(rpmAvg) )
-        $("#peripherySpeed").text( Math.round(peripherySpeed) )
-        $("#acceleration").text( Math.round(acceleration) )
-        $("#accelerationMax").text( Math.round(accelerationMax) )
-        $("#angularVelocity").text( Math.round(angularVelocity) )
-        $("#distanceTravelled").text( Math.round(distanceTravelled) )
+            let speed = dataModel.speed[index]
+            let rotor = dataModel.rotor[index] 
+
+            speed.rpmMax = Math.max(speed.rpmMax, data.rpm)
+            speed.rpmAvg = average(rpmChart.data.datasets[0].data)
+
+            speed.peripherySpeed = (rotor.diskCircumference * data.rpm) / 60000
+            let peripherySpeedOld = (rotor.diskCircumference * rpmOld) / 60000
+
+            let accelerationOld = speed.acceleration
+            speed.acceleration = (speed.peripherySpeed - peripherySpeedOld) / (loopIntervalMs / 1000)  // The acceleration between the last two data points
+            speed.accelerationMax = Math.max(accelerationOld, speed.acceleration)
+
+            speed.angularVelocity = (data.rpm / 60) * 2 * Math.PI
+            speed.distanceTravelled = speed.distanceTravelled + (speed.peripherySpeed * (loopIntervalMs / 1000))  // Total distance the periphery has travelled in meters this session
+
+            // Display the results of the calculations
+            Object.keys(speedModel).forEach(element => {
+                $("#" + element + i).text( Math.round(speed[element]) )
+            })
+        }
     }
 
 
@@ -367,21 +400,21 @@ $(function()
      */
     function displayTemperature(data)
     {   
-        // Display temperature
-        $("#card-temp #temperature1").html(data.temperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
-        $("#card-temp #temperature2").html(data.temperature2 + "&deg;C")
+        for (let index = 0; index < dataModel.temperature.length; index++) {
+            let i = index === 1 ? "2" : ""
 
-        // Calculate
-        temperatureMin = temperatureMin === null ? data.temperature : Math.min(temperatureMin, data.temperature)
-        temperatureMin2 = temperatureMin2 === null ? data.temperature2 : Math.min(temperatureMin2, data.temperature2)
-        temperatureMax = temperatureMax === null ? data.temperature : Math.max(temperatureMax, data.temperature)
-        temperatureMax2 = temperatureMax2 === null ? data.temperature2 : Math.max(temperatureMax2, data.temperature2)
+            $("#card-temp #temperature" + i).html(data['temperature' + i] + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
 
-        // Display
-        $("#temperatureMin").text( temperatureMin )
-        $("#temperatureMin2").text( temperatureMin2 )
-        $("#temperatureMax").text( temperatureMax )
-        $("#temperatureMax2").text( temperatureMax2 )
+            let temperature = dataModel.temperature[index]
+
+            // Calculate
+            temperature.temperatureMin = temperature.temperatureMin === null ? data.temperature : Math.min(temperature.temperatureMin, data.temperature)
+            temperature.temperatureMax = temperature.temperatureMax === null ? data.temperature : Math.max(temperature.temperatureMax, data.temperature)
+
+            // Display
+            $("#temperatureMin" + i).text( temperature.temperatureMin )
+            $("#temperatureMax" + i).text( temperature.temperatureMax )
+        }
     }
 
 
@@ -392,21 +425,21 @@ $(function()
      */
     function displayPressure(data)
     {   
-        // Display pressure
-        $("#card-pressure #pressure1").html(data.pressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
-        $("#card-pressure #pressure2").html(data.pressure2 + " Bar")
+        for (let index = 0; index < dataModel.pressure.length; index++) {
+            let i = index === 1 ? "2" : ""
 
-        // Calculate
-        pressureMin = pressureMin === null ? data.pressure : Math.min(pressureMin, data.pressure)
-        pressureMin2 = pressureMin2 === null ? data.pressure2 : Math.min(pressureMin2, data.pressure2)
-        pressureMax = pressureMax === null ? data.pressure : Math.max(pressureMax, data.pressure)
-        pressureMax2 = pressureMax2 === null ? data.pressure2 : Math.max(pressureMax2, data.pressure2)
+            $("#card-pressure #pressure" + i).html(data['pressure' + i] + " Bar")  // @TODO: convert to PSI if Imperial is selected
 
-        // Display
-        $("#pressureMin").text( pressureMin )
-        $("#pressureMin2").text( pressureMin2 )
-        $("#pressureMax").text( pressureMax )
-        $("#pressureMax2").text( pressureMax2 )
+            let pressure = dataModel.pressure[index]
+
+            // Calculate
+            pressure.pressureMin = pressure.pressureMin === null ? data.pressure : Math.min(pressure.pressureMin, data.pressure)
+            pressure.pressureMax = pressure.pressureMax === null ? data.pressure : Math.max(pressure.pressureMax, data.pressure)
+
+            // Display
+            $("#pressureMin" + i).text( pressure.pressureMin )
+            $("#pressureMax" + i).text( pressure.pressureMax )
+        }
     }
 
 
@@ -419,15 +452,24 @@ $(function()
     {   
         // TODO: Process Volts and Amps sensor readings
 
-        // Calculate
-        inertia = (0.5 * totalRotorMass * (diskRadius / 1000) ** 2)
-        kineticEnergy = 0.5 * (inertia / 1000) * angularVelocity ** 2
-        centrifugalForce = (totalRotorMass / 1000) * (angularVelocity ** 2) * (diskRadius / 1000)
+        // Calculations
+        for (let index = 0; index < dataModel.power.length; index++) {
+            let i = index === 1 ? "2" : ""
 
-        // Display
-        $("#inertia").text( Math.round(inertia * 1000000) / 1000000 )
-        $("#kineticEnergy").text( Math.round(kineticEnergy) )
-        $("#centrifugalForce").text( Math.round(centrifugalForce) )
+            let power = dataModel.power[index]
+            let speed = dataModel.speed[index]
+            let rotor = dataModel.rotor[index]
+             
+            // Calculate
+            power.inertia = (0.5 * rotor.totalRotorMass * (rotor.diskRadius / 1000) ** 2)
+            power.kineticEnergy = 0.5 * (power.inertia / 1000) * speed.angularVelocity ** 2
+            power.centrifugalForce = (rotor.totalRotorMass / 1000) * (speed.angularVelocity ** 2) * (rotor.diskRadius / 1000)
+
+            // Display
+            $("#inertia" + i).text( Math.round(power.inertia * 1000000) / 1000000 )
+            $("#kineticEnergy" + i).text( Math.round(power.kineticEnergy) )
+            $("#centrifugalForce" + i).text( Math.round(power.centrifugalForce) )
+        }
     }
 
 
