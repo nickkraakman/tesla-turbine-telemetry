@@ -105,9 +105,12 @@ def read_rpm(sensor = 1):
 
     global period
 
-    rpm = 60 * 1000000000 / period if period > 0 else 0
+    if sensor == 1:
+        rpm = 60 * 1000000000 / period if period > 0 else 0
+    else:
+        rpm = random.randrange(10000, 200000)
 
-    return random.randrange(10000, 200000)  # rpm
+    return round(rpm)
 
 
 def read_temperature(sensor = 1):
@@ -117,7 +120,7 @@ def read_temperature(sensor = 1):
         sensor (int): Which temperature sensor to read (1 or 2)
 
     Returns: 
-        int: The temperature
+        float: The temperature
     """
 
     return random.randrange(19, 25)
@@ -130,7 +133,7 @@ def read_pressure(sensor = 1):
         sensor (int): Which pressure sensor to read (1 or 2)
 
     Returns: 
-        int: The pressure
+        float: The pressure
     """
 
     return random.randrange(19, 25)
