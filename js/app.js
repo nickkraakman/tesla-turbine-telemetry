@@ -372,17 +372,17 @@ $(function()
             let speed = dataModel.speed[index]
             let rotor = dataModel.rotor[index] 
 
-            speed.rpmMax = Math.max(speed.rpmMax, data.rpm)
+            speed.rpmMax = Math.max(speed.rpmMax, data['rpm' + i])
             speed.rpmAvg = average(rpmChart.data.datasets[0].data)
 
-            speed.peripherySpeed = (rotor.diskCircumference * data.rpm) / 60000
+            speed.peripherySpeed = (rotor.diskCircumference * data['rpm' + i]) / 60000
             let peripherySpeedOld = (rotor.diskCircumference * rpmOld) / 60000
 
             let accelerationOld = speed.acceleration
             speed.acceleration = (speed.peripherySpeed - peripherySpeedOld) / (loopIntervalMs / 1000)  // The acceleration between the last two data points
             speed.accelerationMax = Math.max(accelerationOld, speed.acceleration)
 
-            speed.angularVelocity = (data.rpm / 60) * 2 * Math.PI
+            speed.angularVelocity = (data['rpm' + i] / 60) * 2 * Math.PI
             speed.distanceTravelled = speed.distanceTravelled + (speed.peripherySpeed * (loopIntervalMs / 1000))  // Total distance the periphery has travelled in meters this session
 
             // Display the results of the calculations
