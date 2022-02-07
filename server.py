@@ -62,7 +62,8 @@ def is_raspberrypi():
     """Check whether this code is running on a Raspberry Pi or not"""
     try:
         with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
-            if 'raspberry pi' in m.read().lower(): return True
+            file_content = m.read().lower()
+            if 'raspberry pi' in file_content: return True
     except Exception: pass
     return False
 
