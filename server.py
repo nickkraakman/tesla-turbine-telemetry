@@ -71,7 +71,7 @@ def is_raspberrypi():
 def open_browser():
     """Start a browser showing the dashboard after waiting for half a second."""
     def _open_browser():
-        if is_raspberrypi == True:
+        if is_raspberrypi() == True:
             os.system('chromium-browser --noerrdialogs --disable-infobars --check-for-update-interval=31536000 --kiosk "http://localhost:%s/" & ' % (PORT))
         else:
             webbrowser.open('http://localhost:%s/' % (PORT))
