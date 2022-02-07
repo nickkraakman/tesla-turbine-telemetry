@@ -14,7 +14,7 @@ PORT = 8000
 # Write errors to a log file
 file_path = './logs/errors.txt'
 os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Create logs directory if not exist
-sys.stderr = open(file_path)
+sys.stderr = open(file_path, 'w')
 
 class Handler(http.server.SimpleHTTPRequestHandler):
 
