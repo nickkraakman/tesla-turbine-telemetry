@@ -11,7 +11,7 @@ $(function()
     // Constants
     const loopIntervalMs = 5000  // How often we request data from the sensors
     const speedOfSound = 343.2  // meters per second
-    const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft
+    const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft >> should be part of rotor model?
 
     // Define models
     var rotorModel = {
