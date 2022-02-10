@@ -103,12 +103,18 @@ def read_rpm(sensor = 1):
         int: RPM
     """
 
-    global period
+    global period, last_trigger
 
-    if sensor == 1:
-        rpm = 60 * 1000000000 / period if period > 0 else 0
+    # Check if the last trigger time was > 2 seconds ago, if so, rotor has stopped, so set RPM to 0
+    time_now = time.time_ns()
+    if time_now - last_trigger > (2 * 1000 * 1000 * 1000):
+        rpm = 0
+    elif sensor == 1:
+        rpm = 60 * (1 * 1000 * 1000 * 1000) / period if period > 0 else 0
     else:
         rpm = random.randrange(10000, 200000)
+
+    rpm = random.randrange(10000, 200000)
 
     return round(rpm)
 
