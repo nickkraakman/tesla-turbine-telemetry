@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO
 import random  # Remove once all sensor functions are fully implemented
 
 TACHO_PIN = 4
+VALVE_PIN = 21
 
 session_id = None
 previous_rpm = -1  # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
@@ -148,11 +149,15 @@ def read_pressure(sensor = 1):
 def open_valve():
     """Open an electronic valve to start a test session"""
 
+    GPIO.output(VALVE_PIN, GPIO.HIGH)
+
     return { "valveOpen": True }
 
 
 def close_valve():
     """Close an electronic valve to stop a test session"""
+
+    GPIO.output(VALVE_PIN, GPIO.LOW)
 
     return { "valveOpen": False }
 
@@ -173,6 +178,7 @@ def init():
     # GPIO 4 is the one we want to count.  Set it up
     # as an input, no pull-up/down required.
     GPIO.setup(TACHO_PIN, GPIO.IN)
+    GPIO.setup(VALVE_PIN, GPIO.OUT)
 
     # When a falling edge is detected on TACHO_PIN run the callback
     GPIO.add_event_detect(TACHO_PIN, GPIO.FALLING, callback=tacho_callback)
