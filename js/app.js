@@ -9,7 +9,7 @@ $(function()
     var twoStage = true
 
     // Constants
-    const loopIntervalMs = 5000  // How often we request data from the sensors
+    const loopIntervalMs = 1000  // How often we request data from the sensors
     const speedOfSound = 343.2  // meters per second
     const diskMinusPortsPercentage = 0.55  // A rough estimate based on Tesla's patent drawings that ~ half of the disk is ports, spokes, or shaft >> should be part of rotor model?
 
@@ -291,6 +291,9 @@ $(function()
         })
         rpmChart.update()
 
+        $("#seconds").html('00')
+        $("#minutes").html('00')
+
         // Reset main data model
         dataModel = {
             rotor: [rotorModel, rotorModel],
@@ -309,32 +312,34 @@ $(function()
      */
     function displayData(data)
     {
-        displayRpm(data)
         displayTemperature(data)
         displayPressure(data)
-        displayPower(data)
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
         // How to handle averages? Can't loop through all items every 500ms
         // Should probably add up a total, and then read the length of the array so we know what to divide with
 
-        if (sessionId === null && data.sessionId !== null)
-        {
+        if (sessionId === null && data.sessionId !== null) {
             // New session, so reset all charts and calculations
             reset()
             timer = startTimer()
-        } else if (sessionId === null && data.sessionId === null)
-        {
+            
+            displayRpm(data)
+            displayPower(data)
+        } else if (sessionId === null && data.sessionId === null) {
             // No session, don't update averages and other calculations, only live values
-        } else if (sessionId !== null && data.sessionId === null)
-        {
+        } else if (sessionId !== null && data.sessionId === null) {
             // End session
             stopTimer(timer)
             timer = null
         } else {
             // Active session
+            displayRpm(data)
+            displayPower(data)
         }
+
+        sessionId = data.sessionId
     }
 
 
@@ -592,8 +597,6 @@ $(function()
 
                 // Update data in Dashboard
                 displayData(data)
-
-                sessionId = data.sessionId
             }, 
             error: function (request, status, error) {
                 console.error(request.responseText)
