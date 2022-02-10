@@ -115,8 +115,6 @@ def read_rpm(sensor = 1):
     else:
         rpm = random.randrange(10000, 200000)
 
-    rpm = random.randrange(10000, 200000)
-
     return round(rpm)
 
 

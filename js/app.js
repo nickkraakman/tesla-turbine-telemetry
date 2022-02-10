@@ -99,6 +99,9 @@ $(function()
 
     function applySettings()
     {
+        // Each time settings are changed, reset the dashboard
+        reset()
+
         // Set global variables
         twoStage = $("#two-stage").is(":checked")
         
