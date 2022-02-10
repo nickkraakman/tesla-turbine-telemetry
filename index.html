@@ -437,7 +437,8 @@
       <div class="sidebar-content">
         <form id="settings-form">
 
-          <div class="form-group">
+          <!-- Hide units selection for initial version as it is a ton of work to implement -->
+          <div class="form-group" style="display: none;">  
             <label for="units" class="col-form-label-sm d-block">Units</label>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="units" id="metric" value="metric" checked="checked">
@@ -450,7 +451,7 @@
             </div>
           </div>
 
-          <hr>
+          <!--<hr>-->
 
           <div id="stage-1-settings">
 
