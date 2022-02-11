@@ -176,7 +176,7 @@ def init():
     # GPIO 4 is the one we want to count.  Set it up
     # as an input, no pull-up/down required.
     GPIO.setup(TACHO_PIN, GPIO.IN)
-    GPIO.setup(VALVE_PIN, GPIO.OUT)
+    GPIO.setup(VALVE_PIN, GPIO.OUT, initial=GPIO.LOW)
 
     # When a falling edge is detected on TACHO_PIN run the callback
     GPIO.add_event_detect(TACHO_PIN, GPIO.FALLING, callback=tacho_callback)
