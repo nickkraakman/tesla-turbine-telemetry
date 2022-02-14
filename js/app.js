@@ -65,161 +65,10 @@ $(function()
         pressure: [Object.create(pressureModel), Object.create(pressureModel)],
     }
 
-
     /**
-     * Open / close settings
+     * Create rpm chart
      */
-    $( "#settings-btn" ).on( "click", function() {
-        $( ".sheet-overlay" ).addClass( "sheet-overlay-active" )
-        $( ".sheet" ).addClass( "sheet-active" )
-    })
-
-    $( ".sheet-overlay, #settings-close-btn" ).on( "click", function() {
-        $( ".sheet-overlay" ).removeClass( "sheet-overlay-active" )
-        $( ".sheet" ).removeClass( "sheet-active" )
-    })
-
-
-    /**
-     * Handle settings form changes
-     * @param {string} units The units to set the values to (metric || imperial)
-     */ 
-    function setUnits(units)
-    {
-        if (units === "metric") {
-            $("#settings-form .unit").text("mm")
-            $("#settings-form #disk-diameter").prop("step", "1")
-            $("#settings-form #disk-thickness").prop("step", "0.1")
-        } else if (units === "imperial") {
-            $("#settings-form .unit").text("in")
-            $("#settings-form #disk-diameter").prop("step", "0.1")
-            $("#settings-form #disk-thickness").prop("step", "0.01")
-        }
-    }
-
-    function applySettings()
-    {
-        // Each time settings are changed, reset the dashboard
-        reset()
-
-        // Set global variables
-        twoStage = $("#two-stage").is(":checked")
-        
-        for (let index = 0; index <= 1; index++) {
-            let i = index === 1 ? "2" : ""
-
-            let rotor = dataModel.rotor[index]
-
-            rotor.diskDiameter = Number( $("#disk-diameter" + i).val() )
-            rotor.diskRadius = rotor.diskDiameter / 2
-            rotor.diskThickness = Number( $("#disk-thickness" + i).val() )
-            rotor.diskCount = Number( $("#disk-count" + i).val() )
-            rotor.materialWeight = Number( $("#disk-material" + i).val() )
-            rotor.diskSurfaceAreaGross = Math.PI * rotor.diskRadius ** 2
-            rotor.diskSurfaceAreaNet = rotor.diskSurfaceAreaGross * diskMinusPortsPercentage
-            rotor.diskVolume = (rotor.diskSurfaceAreaNet * rotor.diskThickness) / 1000
-            rotor.diskMass = rotor.materialWeight * rotor.diskVolume
-            rotor.totalRotorMass = rotor.diskMass * rotor.diskCount
-            rotor.diskCircumference = Math.max(Math.PI * rotor.diskDiameter, 0.001)  // Max to prevent division by zero errors
-            rotor.rpmForSupersonic = (speedOfSound / rotor.diskCircumference) * 60000
-
-            // Display values
-            Object.keys(rotorModel).filter(element => element !== "diskMaterial").forEach(element => {
-                $("#" + element + i).text( Math.round(rotor[element] * 100) / 100 )
-            })
-        }
-
-        console.log('dataModel', dataModel)
-
-        if (twoStage) {
-            $(".two-stage").show()
-        } else {
-            $(".two-stage").hide()
-        }
-
-        // @TODO: reset graph? Else # of dataPoints might differ per stage
-    }
-
-    function saveSettings()
-    {
-        var  formData = []
-
-        // Remove old formData
-        localStorage.removeItem('settings')
-
-        // Loop through form input fields
-        $("#settings-form input[type=number], #settings-form input[type=checkbox], #settings-form select, #settings-form input[type=radio]:checked").each(function() {
-            let value = null
-
-            if ($(this).attr('type') === "radio") {
-                value = this.id
-            } else if ($(this).attr('type') === "checkbox") {
-                value = $(this).is(":checked") ? true : false
-            } else {
-                value = this.value
-            }
-            
-            formData.push({ 
-                name: this.name, 
-                value: value,
-                type: $(this).attr('type')
-            })
-        })
-
-        // Convert array to JSON and story in localStorage
-        localStorage.settings = JSON.stringify(formData)
-    }
-
-    function loadSettings()
-    {
-        if (localStorage.settings != undefined) {
-            settings  = JSON.parse(localStorage.settings)
-            for (var i = 0; i < settings.length; i++) {
-                if (settings[i].type != undefined && settings[i].type == "radio") {
-                    $("#" + settings[i].value).prop('checked', true)
-                } else if (settings[i].type != undefined && settings[i].type == "checkbox") {
-                    $("[name=" + settings[i].name + "]").prop("checked", settings[i].value)
-                } else {
-                    $("[name=" + settings[i].name + "]").val(settings[i].value)
-                }
-
-                if (settings[i].name === "units")
-                {
-                    setUnits(settings[i].value)
-                }
-            }
-        } else {
-            setUnits("metric")
-        }
-
-        applySettings()
-    }
-    
-    // Get form data from localstorage on page load
-    loadSettings()
-
-    // Listen for changes in the settings form
-    $("#settings-form input, #settings-form select").on( "input", function() 
-    {
-        applySettings()
-
-        // Don't save settings on every change immediately, but wait a little to batch them
-        clearTimeout(timeout);
-
-        timeout = setTimeout(function() {
-            saveSettings()
-        }, 2000)
-    })
-
-    $("#settings-form input[name=units]").on( "change", function() {
-        setUnits(this.id)
-    })
-
-
-    /**
-     * Create charts
-     */
-    rpmChart = new Chart('rpm-chart', {
+    var rpmChart = new Chart('rpm-chart', {
         type: 'line',
         options: {
             scales: {
@@ -279,6 +128,159 @@ $(function()
             }]
         }
     });
+
+
+    /**
+     * Open / close settings
+     */
+    $( "#settings-btn" ).on( "click", function() {
+        $( ".sheet-overlay" ).addClass( "sheet-overlay-active" )
+        $( ".sheet" ).addClass( "sheet-active" )
+    })
+
+    $( ".sheet-overlay, #settings-close-btn" ).on( "click", function() {
+        $( ".sheet-overlay" ).removeClass( "sheet-overlay-active" )
+        $( ".sheet" ).removeClass( "sheet-active" )
+    })
+
+
+    /**
+     * Handle settings form changes
+     * @param {string} units The units to set the values to (metric || imperial)
+     */ 
+    function setUnits(units)
+    {
+        if (units === "metric") {
+            $("#settings-form .unit").text("mm")
+            $("#settings-form #disk-diameter").prop("step", "1")
+            $("#settings-form #disk-thickness").prop("step", "0.1")
+        } else if (units === "imperial") {
+            $("#settings-form .unit").text("in")
+            $("#settings-form #disk-diameter").prop("step", "0.1")
+            $("#settings-form #disk-thickness").prop("step", "0.01")
+        }
+    }
+
+
+    function applySettings()
+    {
+        // Each time settings are changed, reset the dashboard
+        reset()
+
+        // Set global variables
+        twoStage = $("#two-stage").is(":checked")
+        
+        for (let index = 0; index <= 1; index++) {
+            let i = index === 1 ? "2" : ""
+
+            let rotor = dataModel.rotor[index]
+
+            rotor.diskDiameter = Number( $("#disk-diameter" + i).val() )
+            rotor.diskRadius = rotor.diskDiameter / 2
+            rotor.diskThickness = Number( $("#disk-thickness" + i).val() )
+            rotor.diskCount = Number( $("#disk-count" + i).val() )
+            rotor.materialWeight = Number( $("#disk-material" + i).val() )
+            rotor.diskSurfaceAreaGross = Math.PI * rotor.diskRadius ** 2
+            rotor.diskSurfaceAreaNet = rotor.diskSurfaceAreaGross * diskMinusPortsPercentage
+            rotor.diskVolume = (rotor.diskSurfaceAreaNet * rotor.diskThickness) / 1000
+            rotor.diskMass = rotor.materialWeight * rotor.diskVolume
+            rotor.totalRotorMass = rotor.diskMass * rotor.diskCount
+            rotor.diskCircumference = Math.max(Math.PI * rotor.diskDiameter, 0.001)  // Max to prevent division by zero errors
+            rotor.rpmForSupersonic = (speedOfSound / rotor.diskCircumference) * 60000
+
+            // Display values
+            Object.keys(rotorModel).filter(element => element !== "diskMaterial").forEach(element => {
+                $("#" + element + i).text( Math.round(rotor[element] * 100) / 100 )
+            })
+        }
+
+        console.log('dataModel', dataModel)
+
+        if (twoStage) {
+            $(".two-stage").show()
+        } else {
+            $(".two-stage").hide()
+        }
+
+        // @TODO: reset graph? Else # of dataPoints might differ per stage
+    }
+
+
+    function saveSettings()
+    {
+        var  formData = []
+
+        // Remove old formData
+        localStorage.removeItem('settings')
+
+        // Loop through form input fields
+        $("#settings-form input[type=number], #settings-form input[type=checkbox], #settings-form select, #settings-form input[type=radio]:checked").each(function() {
+            let value = null
+
+            if ($(this).attr('type') === "radio") {
+                value = this.id
+            } else if ($(this).attr('type') === "checkbox") {
+                value = $(this).is(":checked") ? true : false
+            } else {
+                value = this.value
+            }
+            
+            formData.push({ 
+                name: this.name, 
+                value: value,
+                type: $(this).attr('type')
+            })
+        })
+
+        // Convert array to JSON and story in localStorage
+        localStorage.settings = JSON.stringify(formData)
+    }
+
+
+    function loadSettings()
+    {
+        if (localStorage.settings != undefined) {
+            settings  = JSON.parse(localStorage.settings)
+            for (var i = 0; i < settings.length; i++) {
+                if (settings[i].type != undefined && settings[i].type == "radio") {
+                    $("#" + settings[i].value).prop('checked', true)
+                } else if (settings[i].type != undefined && settings[i].type == "checkbox") {
+                    $("[name=" + settings[i].name + "]").prop("checked", settings[i].value)
+                } else {
+                    $("[name=" + settings[i].name + "]").val(settings[i].value)
+                }
+
+                if (settings[i].name === "units")
+                {
+                    setUnits(settings[i].value)
+                }
+            }
+        } else {
+            setUnits("metric")
+        }
+
+        applySettings()
+    }
+    
+    // Get form data from localstorage on page load
+    loadSettings()
+
+    // Listen for changes in the settings form
+    $("#settings-form input, #settings-form select").on( "input", function() 
+    {
+        applySettings()
+
+        // Don't save settings on every change immediately, but wait a little to batch them
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function() {
+            saveSettings()
+        }, 2000)
+    })
+
+    $("#settings-form input[name=units]").on( "change", function() {
+        setUnits(this.id)
+    })
 
 
     /**
