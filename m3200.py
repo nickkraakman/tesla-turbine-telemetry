@@ -31,36 +31,37 @@ GPIO.setmode(GPIO.BCM) # Use Broadcom GPIO pin numbering
 
 
 # Switch SDA pin from input to output?  >> input = ALT0, output = OUTPUT
-# Do we even have to do this? Or can we just call smbus.write_byte()??
+# Do we even have to do this? Or can we just call smbus.write_byte()?? 
+# But that only sets SDA, how do we then set SCL pin HIGH/LOW?
 # https://raspberrypi.stackexchange.com/a/105637/144210
 # https://forums.raspberrypi.com/viewtopic.php?t=190604#p1198566
 def SDA_IN():
     """Set SDA pin to I2C INPUT with no pullup"""
     GPIO.setup(SDA1_PIN, GPIO.I2C, pull_up_down=GPIO.PUD_OFF)
-    GPIO.setup(SDA2_PIN, GPIO.I2C, pull_up_down=GPIO.PUD_OFF)
+    #GPIO.setup(SDA2_PIN, GPIO.I2C, pull_up_down=GPIO.PUD_OFF)
 
 
 def SDA_OUT():
     """Set SDA pin to OUTPUT with no pullup"""
     GPIO.setup(SDA1_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
-    GPIO.setup(SDA2_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
+    #GPIO.setup(SDA2_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
 
 
 def SCL_High():
     GPIO.output(SCL1_PIN, GPIO.HIGH)
-    GPIO.output(SCL2_PIN, GPIO.HIGH)
+    #GPIO.output(SCL2_PIN, GPIO.HIGH)
 
 def SCL_Low():
     GPIO.output(SCL1_PIN, GPIO.LOW)
-    GPIO.output(SCL2_PIN, GPIO.LOW)
+    #GPIO.output(SCL2_PIN, GPIO.LOW)
 
 def SDA_High():
     GPIO.output(SDA1_PIN, GPIO.HIGH)
-    GPIO.output(SDA2_PIN, GPIO.HIGH)
+    #GPIO.output(SDA2_PIN, GPIO.HIGH)
 
 def SDA_Low():
     GPIO.output(SDA1_PIN, GPIO.LOW)
-    GPIO.output(SDA2_PIN, GPIO.LOW)
+    #GPIO.output(SDA2_PIN, GPIO.LOW)
 
 
 def delay_us(microseconds):
