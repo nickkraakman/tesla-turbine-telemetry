@@ -1,3 +1,5 @@
+"""Functions related to the Raspberry Pi & GPIO"""
+
 import datetime
 import time
 import csv

@@ -1,3 +1,5 @@
+"""Main thread which spawns a web server and a browser, and starts the sensor reading thread"""
+
 import raspberry
 import threading
 import http.server
