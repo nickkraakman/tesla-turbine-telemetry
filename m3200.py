@@ -1,6 +1,6 @@
 """Methods to read data from a MEAS M32JM pressure & temperature sensor"""
 
-import smbus
+import smbus  # Alternative is pigpio: http://abyz.me.uk/rpi/pigpio/python.html#i2c_open
 import time
 import RPi.GPIO as GPIO
 
@@ -17,10 +17,10 @@ SCL2_PIN = 24
 
 # Variables from example code
 temp = []  # Array of 7 unsigned 8 bit integers
-Tscope, Pscope, Tdisplay, Pdisplay = float(0)
+Tscope = Pscope = Tdisplay = Pdisplay = float(0)
 Lmax = float(100)  # Span 100L，Zero 0L, Span should be defined by the sensor pressure range. 100 means pressure range of 100L
 Lmin = float(0)
-Pvalue, Tvalue, Pspan, Tspan = 0
+Pvalue = Tvalue = Pspan = Tspan = 0
 P1 = 1000
 P2 = 15000
 READ_Sensor_SDA = True
@@ -28,6 +28,8 @@ I2C_ERR = 0
 
 
 GPIO.setmode(GPIO.BCM) # Use Broadcom GPIO pin numbering
+#GPIO.setup(SCL1_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
+#GPIO.setup(SCL2_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
 
 
 # Switch SDA pin from input to output?  >> input = ALT0, output = OUTPUT
@@ -35,6 +37,7 @@ GPIO.setmode(GPIO.BCM) # Use Broadcom GPIO pin numbering
 # But that only sets SDA, how do we then set SCL pin HIGH/LOW?
 # https://raspberrypi.stackexchange.com/a/105637/144210
 # https://forums.raspberrypi.com/viewtopic.php?t=190604#p1198566
+# https://forums.raspberrypi.com/viewtopic.php?t=76849#p549112
 def SDA_IN():
     """Set SDA pin to I2C INPUT with no pullup"""
     GPIO.setup(SDA1_PIN, GPIO.I2C, pull_up_down=GPIO.PUD_OFF)
@@ -152,7 +155,7 @@ def IIC_Send_Byte(txd):
     SCL_Low()
 
     for t in range(8):
-        if txd and 0x80:
+        if txd & 0x80:  # 0x80 is write?
             SDA_High()
         else:
             SDA_Low()
@@ -167,6 +170,7 @@ def IIC_Send_Byte(txd):
 
 
 def IIC_Read_Byte(ack):
+    """Should we use bus1.read_byte_data(address, 1) instead???"""
     receive = 0
     SDA_IN()
     for i in range(8):
