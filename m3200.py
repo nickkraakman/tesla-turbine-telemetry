@@ -1,15 +1,10 @@
 """Methods to read data from a MEAS M32JM pressure & temperature sensor"""
 
+import sys
 import time
 import pigpio
-import RPi.GPIO as GPIO
 
-pi = pigpio.pi()
-
-if not pi.connected:
-    print("No Pi found")
-    exit()
-
+# Define variables
 temp = []
 I2C_ERR = 0
 temperature = pressure = float(0)
@@ -22,70 +17,72 @@ P1 = 1000  # 1000 counts is 0% pressure = 0 psi = 0 bar
 P2 = 15000  # 15000 counts is 100% pressure = 100 psi = 7 bar
 Pspan = P2 - P1
 
-SENSOR_ADDRESS = 0x28  # 0101000-
-#read_header = 0x51  # 01010001
-read_bytes = 4
+SENSOR_ADDRESS = 0x28  # 0101000-, check datasheet or run `sudo i2cdetect -y 1`
 
-handle1 = pi.i2c_open(1, SENSOR_ADDRESS)  # Original I2C bus 1
-handle2 = pi.i2c_open(3, SENSOR_ADDRESS)  # Custom I2C bus 3, where GPIO 23 = SDA and GPIO 24 = SCL
 
-# Check if we're properly connected to the sensor
-if (handle1 < 0):
-    print('Error connecting to the sensor')
+def read_sensor(sensor = 1):
+    pi = pigpio.pi()
+
+    if not pi.connected:
+        print("No Pi found", file=sys.stderr)
+        exit()
+
+    bus = 1 if sensor == 1 else 3  # Original I2C bus 1, custom I2C bus 3, where GPIO 23 = SDA and GPIO 24 = SCL
+    handle = pi.i2c_open(bus, SENSOR_ADDRESS)
+
+    # Check if we're properly connected to the sensor
+    if (handle < 0):
+        print("Error connecting to the sensor", file=sys.stderr)
+        pi.stop()
+        exit()
+
+    pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
+    time.sleep(2 / 1000)  # Response time from power on to reading measurement data is 8.4 ms with sleep mode
+
+    count, data = pi.i2c_read_device(handle, 4)  # Send READ_DF4 command, to fetch 2 pressure bytes & 2 temperature bytes
+
+    pi.i2c_close(handle)
     pi.stop()
-    exit()
 
-# Wake up from sleep mode
-pi.i2c_write_quick(handle1, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
-time.sleep(2 / 1000)  # Response time from power on to reading measurement data is 8.4 ms with sleep mode
+    print("count = ", count)
+    print("data = ", data)
 
-count, data = pi.i2c_read_device(handle1, read_bytes)  # Send READ_DF4 command, to fetch 2 pressure bytes & 2 temperature bytes
+    if count < 0:
+        print("Error reading from the sensor", file=sys.stderr)
+        pi.stop()
+        exit()
 
-pi.i2c_close(handle1)
-pi.stop()
+    print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits
+    print("data[1] =", "{:08b}".format(data[1]) )
+    print("data[2] =", "{:08b}".format(data[2]) )
+    print("data[3] =", "{:08b}".format(data[3]) )  # Last 5 bits are unrelated and should be ignored
 
-print('count = ', count)
-print('data = ', data)
+    # @TODO: handle each status
+    statusCode = "{:08b}".format(data[0])[:2]
+    print("Status code =", statusCode)
 
-if count < 0:
-    print('Error reading from the sensor')
-    pi.stop()
-    exit()
+    if statusCode == "00":
+        print("Status: Normal operation")
+    elif statusCode == "01":
+        print("Status: Reserved", file=sys.stderr)
+    elif statusCode == "10":
+        print("Status: Stale data", file=sys.stderr)
+    else:
+        print("Status: Fault detected", file=sys.stderr)
 
+    Pvalue = (data[0] << 8) | data[1]
+    Tvalue = (data[2] << 3) | (data[3] >> 5)
 
-"""
-data[0] =  10000100  # First two bits are status bits
-data[1] =  00011000
-data[2] =  01011100
-data[3] =  01110000  # Last 5 bits are unrelated and should be ignored
-"""
-print('data[0] =', '{:08b}'.format(data[0]) )
-print('data[1] =', '{:08b}'.format(data[1]) )
-print('data[2] =', '{:08b}'.format(data[2]) )
-print('data[3] =', '{:08b}'.format(data[3]) )
+    print("Pvalue =", Pvalue)
+    print("Tvalue =", Tvalue)
 
-statusCode = '{:08b}'.format(data[0])[:2]
-print('Status code =', statusCode)
+    temperature = Tvalue * Tscope / Tspan - 50
+    pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin  # 100L
 
-if statusCode == '00':
-    print("Status: Normal operation")
-elif statusCode == '01':
-    print("Status: Reserved")
-elif statusCode == '10':
-    print("Status: Stale data")
-else:
-    print("Status: Fault detected")
+    print("Temperature =", temperature, "ºC")  # Temperature in ºC
+    print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is 14.69)
 
-
-Pvalue = (data[0] << 8) | data[1]
-Tvalue = (data[2] << 3) | (data[3] >> 5)
-
-print('Pvalue = ', Pvalue)
-print('Tvalue = ', Tvalue)
-
-temperature = Tvalue * Tscope / Tspan - 50
-pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin  # 100L
-
-print('Temperature =', temperature, 'ºC')  # Temperature in ºC
-print('Pressure =', pressure, 'PSI')  # Pressure in PSI (atmospheric is 14.69)
-exit()
+    return {
+        "temperature": temperature,
+        "pressure": pressure
+    }
