@@ -4,9 +4,8 @@ import sys
 import time
 import pigpio
 
+
 # Define variables
-temp = []
-I2C_ERR = 0
 temperature = pressure = float(0)
 Pmax = float(100)  # 100 PSI, should be defined by the sensor pressure range.
 Pmin = float(0)
@@ -17,24 +16,35 @@ P1 = 1000  # 1000 counts is 0% pressure = 0 psi = 0 bar
 P2 = 15000  # 15000 counts is 100% pressure = 100 psi = 7 bar
 Pspan = P2 - P1
 
-SENSOR_ADDRESS = 0x28  # 0101000-, check datasheet or run `sudo i2cdetect -y 1`
+SENSOR_ADDRESS = 0x28  # 7 bit address 0101000-, check datasheet or run `sudo i2cdetect -y 1`
 
 
 def read_sensor(sensor = 1):
+    """Read temperature and pressure from M32JM sensor
+
+    Args:
+        sensor (int): Which of the M32JM sensors to read (1 or 2)
+
+    Returns: 
+        dict: {
+            "temperature": temperature in ºC,
+            "pressure": pressure in PSI
+        }
+    """
     pi = pigpio.pi()
 
     if not pi.connected:
         print("No Pi found", file=sys.stderr)
-        exit()
+        return None
 
-    bus = 1 if sensor == 1 else 3  # Original I2C bus 1, custom I2C bus 3, where GPIO 23 = SDA and GPIO 24 = SCL
+    bus = 1 if sensor == 1 else 3  # Original I2C bus = 1, custom I2C bus = 3, where GPIO 23 = SDA and GPIO 24 = SCL
     handle = pi.i2c_open(bus, SENSOR_ADDRESS)
 
     # Check if we're properly connected to the sensor
     if (handle < 0):
         print("Error connecting to the sensor", file=sys.stderr)
         pi.stop()
-        exit()
+        return None
 
     pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
     time.sleep(2 / 1000)  # Response time from power on to reading measurement data is 8.4 ms with sleep mode
@@ -49,38 +59,42 @@ def read_sensor(sensor = 1):
 
     if count < 0:
         print("Error reading from the sensor", file=sys.stderr)
-        pi.stop()
-        exit()
+        return None
 
-    print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits
-    print("data[1] =", "{:08b}".format(data[1]) )
-    print("data[2] =", "{:08b}".format(data[2]) )
-    print("data[3] =", "{:08b}".format(data[3]) )  # Last 5 bits are unrelated and should be ignored
+    print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits, other 6 bits are pressure bits
+    print("data[1] =", "{:08b}".format(data[1]) )  # All bits are pressure bits   
+    print("data[2] =", "{:08b}".format(data[2]) )  # All bits are temperature bits
+    print("data[3] =", "{:08b}".format(data[3]) )  # First 3 bits are temperature bits, last 5 bits are unrelated and should be ignored
 
-    # @TODO: handle each status
-    statusCode = "{:08b}".format(data[0])[:2]
-    print("Status code =", statusCode)
+    # Handle sensor status
+    status_code = "{:08b}".format(data[0])[:2]  # Get first two bits from first byte
+    print("Status code =", status_code)
 
-    if statusCode == "00":
+    if status_code == "00":
         print("Status: Normal operation")
-    elif statusCode == "01":
+    elif status_code == "01":
         print("Status: Reserved", file=sys.stderr)
-    elif statusCode == "10":
+        return None
+    elif status_code == "10":
         print("Status: Stale data", file=sys.stderr)
+        return None
     else:
         print("Status: Fault detected", file=sys.stderr)
+        return None
 
-    Pvalue = (data[0] << 8) | data[1]
+    # Perform some bitwise magic to get the the temperature count and the pressure count
     Tvalue = (data[2] << 3) | (data[3] >> 5)
+    Pvalue = (data[0] << 8) | data[1]
 
-    print("Pvalue =", Pvalue)
     print("Tvalue =", Tvalue)
+    print("Pvalue =", Pvalue)
 
+    # Calculate actual temperature and pressure values
     temperature = Tvalue * Tscope / Tspan - 50
-    pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin  # 100L
+    pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin
 
     print("Temperature =", temperature, "ºC")  # Temperature in ºC
-    print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is 14.69)
+    print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is ~14.69, 0 is perfect vacuum)
 
     return {
         "temperature": temperature,
