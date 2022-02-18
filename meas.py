@@ -21,17 +21,20 @@ Pspan = P2 - P1
 SENSOR_ADDRESS = 0x28  # 7 bit address 0101000-, check datasheet or run `sudo i2cdetect -y 1`
 
 
-def read_sensor(sensor = 1):
+def read_m3200(sensor = 1):
     """Read temperature and pressure from M32JM sensor
 
     Args:
         sensor (int): Which of the M32JM sensors to read (1 or 2)
 
     Returns: 
-        dict: {
-            "temperature": temperature in ºC,
-            "pressure": pressure in PSI
-        }
+        dict: Contains "temperature" and "pressure" if successful, None otherwise.
+        
+        Example return::
+            {
+                "temperature": temperature in ºC,
+                "pressure": pressure in PSI
+            }
     """
     pi = pigpio.pi()
 
@@ -53,7 +56,7 @@ def read_sensor(sensor = 1):
     try:
       pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
     except:
-      print("Error writing to the sensor", file=sys.stderr)
+      print("Error writing to the sensor, perhaps none is connected to bus %s" % bus, file=sys.stderr)
       pi.stop()
       return None
 

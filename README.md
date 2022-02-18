@@ -20,6 +20,9 @@ raspberry
 Check pigpio deamon status
 `sudo service pigpiod status`
 
+Check if MEAS sensor is connected properly:
+`sudo i2cdetect -y 1` for the first, and `sudo i2cdetect -y 3` for the second sensor
+
 Edit boot command
 `sudo nano /etc/xdg/openbox/autostart`
 

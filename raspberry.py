@@ -4,9 +4,13 @@ import datetime
 import time
 import csv
 import os
+import sys
+
 import RPi.GPIO as GPIO
 
-import random  # Remove once all sensor functions are fully implemented
+import meas
+
+import random  # REMOVE once all sensor functions are fully implemented
 
 TACHO_PIN = 4
 VALVE_PIN = 21
@@ -37,7 +41,9 @@ def read_sensors():
 
     global session_id, previous_rpm
 
-    current_rpm = read_rpm()
+    current_rpm = read_rpm(1)
+    temp_pressure_1 = read_temp_and_pressure(1)
+    temp_pressure_2 = read_temp_and_pressure(2)
 
     # Check if we have to start a new session
     if previous_rpm == 0 and current_rpm > 0:
@@ -49,10 +55,10 @@ def read_sensors():
         'sessionId': session_id,
         'rpm': current_rpm, 
         'rpm2': read_rpm(2),
-        'temperature': read_temperature(),
-        'temperature2': read_temperature(2),
-        'pressure': read_pressure(),
-        'pressure2': read_pressure(2)
+        'temperature': temp_pressure_1['temperature'],
+        'temperature2': temp_pressure_2['temperature'],
+        'pressure': temp_pressure_1['pressure'],
+        'pressure2': temp_pressure_2['pressure']
     }
 
     # Only write sensor data if there is an active session
@@ -90,7 +96,7 @@ def write_sensor_data(sensor_data):
             writer.writerow(sensor_data)
 
     except IOError:
-        print("Error writing to CSV file")
+        print("Error writing to CSV file", file=sys.stderr)
         return False
 
     return True
@@ -115,35 +121,37 @@ def read_rpm(sensor = 1):
     elif sensor == 1:
         rpm = 60 * (1 * 1000 * 1000 * 1000) / period if period > 0 else 0
     else:
-        rpm = random.randrange(10000, 200000)
+        rpm = random.randrange(10000, 200000)  # @TODO: implement reading second RPM
 
     return round(rpm)
 
 
-def read_temperature(sensor = 1):
-    """Read temperature sensor(s)
-    
-    Args:
-        sensor (int): Which temperature sensor to read (1 or 2)
-
-    Returns: 
-        float: The temperature
-    """
-
-    return random.randrange(19, 25)
-
-
-def read_pressure(sensor = 1):
-    """Read pressure sensor(s)
+def read_temp_and_pressure(sensor = 1):
+    """Read temperature & pressure from MEAS M32JM sensor
 
     Args:
-        sensor (int): Which pressure sensor to read (1 or 2)
+        sensor (int): Which of the M32JM sensors to read (1 or 2)
 
     Returns: 
-        float: The pressure
+        dict: Contains "temperature" and "pressure", whose values are None on error.
+
+        Example return::
+            {
+                "temperature": temperature in ºC,
+                "pressure": pressure in PSI
+            }
     """
 
-    return random.randrange(19, 25)
+    response = meas.read_m3200(sensor)
+
+    if response == None:
+        # An error occurred, return empty response
+        response = {
+            "temperature": None,
+            "pressure": None
+        }
+
+    return response
 
 
 def open_valve():
@@ -163,7 +171,7 @@ def close_valve():
 
 
 def tacho_callback(channel):
-    """Called by pin interrupt each on each rotation"""
+    """Called by pin interrupt on each rotation"""
     global period, last_trigger
 
     time_now = time.time_ns()
