@@ -1,14 +1,15 @@
 """Main thread which spawns a web server and a browser, and starts the sensor reading thread"""
 
-import raspberry
+import io
+import os
+import sys
 import threading
 import http.server
 import socketserver
 import json
-import io
-import os
-import sys
 import webbrowser
+
+import raspberry
 
 
 PORT = 8000

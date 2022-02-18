@@ -2,6 +2,8 @@
 
 import sys
 import time
+import subprocess
+
 import pigpio
 
 
@@ -43,10 +45,18 @@ def read_sensor(sensor = 1):
     # Check if we're properly connected to the sensor
     if (handle < 0):
         print("Error connecting to the sensor", file=sys.stderr)
+        subprocess.run(["i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
         pi.stop()
         return None
 
-    pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
+    # Attempt to write to the sensor, catch exceptions
+    try:
+      pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
+    except:
+      print("Error writing to the sensor", file=sys.stderr)
+      pi.stop()
+      return None
+
     time.sleep(2 / 1000)  # Response time from power on to reading measurement data is 8.4 ms with sleep mode
 
     count, data = pi.i2c_read_device(handle, 4)  # Send READ_DF4 command, to fetch 2 pressure bytes & 2 temperature bytes
@@ -59,6 +69,7 @@ def read_sensor(sensor = 1):
 
     if count < 0:
         print("Error reading from the sensor", file=sys.stderr)
+        
         return None
 
     print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits, other 6 bits are pressure bits
