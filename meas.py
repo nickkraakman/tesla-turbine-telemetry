@@ -45,7 +45,7 @@ def read_sensor(sensor = 1):
     # Check if we're properly connected to the sensor
     if (handle < 0):
         print("Error connecting to the sensor", file=sys.stderr)
-        subprocess.run(["i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
+        subprocess.run(["/usr/sbin/i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
         pi.stop()
         return None
 
