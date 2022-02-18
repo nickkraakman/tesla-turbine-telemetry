@@ -12,13 +12,19 @@ import meas
 
 import random  # REMOVE once all sensor functions are fully implemented
 
-TACHO_PIN = 4
-VALVE_PIN = 21
+RPM1_PIN = 4
+RPM2_PIN = 22
+VALVE_PIN = 12
 
 session_id = None
-previous_rpm = -1  # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
-period = 0  # Time between RPM sensor triggers in ns
-last_trigger = 0  # Time of last RPM sensor trigger in ns
+
+rpm_vars_model = {
+    "previous_rpm": -1, # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
+    "period": 0,        # Time between RPM sensor triggers in ns
+    "last_trigger": 0,  # Time of last RPM sensor trigger in ns
+}
+
+rpm_vars = [rpm_vars_model.copy(), rpm_vars_model.copy()]  # We're tracking data for 2 RPM sensors
 
 
 def do_action(action, payload = None):
@@ -39,22 +45,25 @@ def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
 
-    global session_id, previous_rpm
+    global session_id, rpm_vars
 
-    current_rpm = read_rpm(1)
+    previous_rpm1 = rpm_vars[0]["previous_rpm"]
+    previous_rpm2 = rpm_vars[1]["previous_rpm"]
+    current_rpm1 = read_rpm(1)
+    current_rpm2 = read_rpm(2)
     temp_pressure_1 = read_temp_and_pressure(1)
     temp_pressure_2 = read_temp_and_pressure(2)
 
     # Check if we have to start a new session
-    if previous_rpm == 0 and current_rpm > 0:
+    if (previous_rpm1 == 0 and current_rpm1 > 0) or (previous_rpm2 == 0 and current_rpm2 > 0):
         # We'll set time in UTC until we allow users to specify their timezone
         session_start = datetime.datetime.now(datetime.timezone.utc)
         session_id = session_start.strftime("%Y-%m-%d_%H.%M.%S")
 
     sensor_data = {
         'sessionId': session_id,
-        'rpm': current_rpm, 
-        'rpm2': read_rpm(2),
+        'rpm': current_rpm1, 
+        'rpm2': current_rpm2,
         'temperature': temp_pressure_1['temperature'],
         'temperature2': temp_pressure_2['temperature'],
         'pressure': temp_pressure_1['pressure'],
@@ -66,10 +75,11 @@ def read_sensors():
         write_sensor_data(sensor_data)
 
     # Check if we have to end this session
-    if previous_rpm > 0 and current_rpm == 0:
+    if (previous_rpm1 > 0 and current_rpm1 == 0) or (previous_rpm2 > 0 and current_rpm2 == 0):
         session_id = None
 
-    previous_rpm = current_rpm
+    rpm_vars[0]["previous_rpm"] = current_rpm1
+    rpm_vars[1]["previous_rpm"] = current_rpm2
 
     return sensor_data
 
@@ -112,7 +122,11 @@ def read_rpm(sensor = 1):
         int: RPM
     """
 
-    global period, last_trigger
+    global rpm_vars
+
+    i = sensor - 1
+    period = rpm_vars[i]["period"]
+    last_trigger = rpm_vars[i]["last_trigger"]
 
     # Check if the last trigger time was > 2 seconds ago, if so, rotor has stopped, so set RPM to 0
     time_now = time.time_ns()
@@ -170,13 +184,18 @@ def close_valve():
     return { "valveOpen": False }
 
 
-def tacho_callback(channel):
+def tacho_callback(channel):  # Channel = GPIO pin number
     """Called by pin interrupt on each rotation"""
-    global period, last_trigger
+    global rpm_vars
+
+    sensor = 1 if channel == RPM1_PIN else 2
+    i = sensor - 1
+
+    last_trigger = rpm_vars[i]["last_trigger"]
 
     time_now = time.time_ns()
-    period = time_now - last_trigger
-    last_trigger = time_now
+    rpm_vars[i]["period"] = time_now - last_trigger
+    rpm_vars[i]["last_trigger"] = time_now
 
 
 def init():
@@ -185,11 +204,13 @@ def init():
 
     # GPIO 4 is the one we want to count.  Set it up
     # as an input, no pull-up/down required.
-    GPIO.setup(TACHO_PIN, GPIO.IN)
+    GPIO.setup(RPM1_PIN, GPIO.IN)
+    GPIO.setup(RPM2_PIN, GPIO.IN)
     GPIO.setup(VALVE_PIN, GPIO.OUT, initial=GPIO.LOW)
 
     # When a falling edge is detected on TACHO_PIN run the callback
-    GPIO.add_event_detect(TACHO_PIN, GPIO.FALLING, callback=tacho_callback)
+    GPIO.add_event_detect(RPM1_PIN, GPIO.FALLING, callback=tacho_callback)
+    GPIO.add_event_detect(RPM2_PIN, GPIO.FALLING, callback=tacho_callback)
 
     try:
         while True:
