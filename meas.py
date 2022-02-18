@@ -47,8 +47,7 @@ def read_m3200(sensor = 1):
 
     # Check if we're properly connected to the sensor
     if (handle < 0):
-        print("Error connecting to the sensor", file=sys.stderr)
-        subprocess.run(["/usr/sbin/i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
+        print("Error connecting to the sensor on bus %s" % bus, file=sys.stderr)
         pi.stop()
         return None
 
@@ -71,8 +70,8 @@ def read_m3200(sensor = 1):
     print("data = ", data)
 
     if count < 0:
-        print("Error reading from the sensor", file=sys.stderr)
-        
+        print("Error reading from the sensor on bus %s" % bus, file=sys.stderr)
+        subprocess.run(["/usr/sbin/i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
         return None
 
     print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits, other 6 bits are pressure bits
