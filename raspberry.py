@@ -10,7 +10,6 @@ import RPi.GPIO as GPIO
 
 import meas
 
-import random  # REMOVE once all sensor functions are fully implemented
 
 RPM1_PIN = 4
 RPM2_PIN = 22
@@ -132,10 +131,8 @@ def read_rpm(sensor = 1):
     time_now = time.time_ns()
     if time_now - last_trigger > (2 * 1000 * 1000 * 1000):
         rpm = 0
-    elif sensor == 1:
-        rpm = 60 * (1 * 1000 * 1000 * 1000) / period if period > 0 else 0
     else:
-        rpm = random.randrange(10000, 200000)  # @TODO: implement reading second RPM
+        rpm = 60 * (1 * 1000 * 1000 * 1000) / period if period > 0 else 0
 
     return round(rpm)
 
