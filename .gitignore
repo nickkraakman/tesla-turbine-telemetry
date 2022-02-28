@@ -1,5 +1,7 @@
 node_modules/*
 __pycache__
 RPi
+RPi_BACKUP
 logs
 errors.txt
+.DS_Store
