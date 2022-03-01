@@ -37,7 +37,7 @@ Several additional packages were installed, and various customizations were made
 5. Click "CHOOSE STORAGE" and select your SD card, then click "WRITE"
 6. Eject SD card from computer & insert it into your Raspberry Pi
 7. Hook up the sensors to the Raspberry Pi according to the following schematic:
-![Tesla Turbine Telemetry schematic](https://waveguide.blog/static/github/pinout-and-schematics.png)
+![Tesla Turbine Telemetry schematic](https://waveguide.blog/static/github/pinout-and-schematics-v2.png)
 1. Connect your Raspberry Pi to your monitor through HDMI & plug in the power cable, and you're good to go!
 
 The Pi will take a minute or two to boot and auto-login, after which it will automatically launch the dashboard and will start reading data from the sensors.
