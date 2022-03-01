@@ -138,10 +138,6 @@ The file names contain the time when the session started in the format `YYYYMMDD
 
 
 ## Useful commands
-SSH
-ssh pi@turbine.local
-raspberry
-
 Check pigpio deamon status
 `sudo service pigpiod status`
 
