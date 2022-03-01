@@ -42,7 +42,7 @@ Several additional packages were installed, and various customizations were made
 
 The Pi will take a minute or two to boot and auto-login, after which it will automatically launch the dashboard and will start reading data from the sensors.
 
-If you decide not to use the disk image, you can run the following command to install the necessary packages on your Pi:
+If you decide not to use the disk image, you can run the following commands to install the necessary packages on your Pi:
 
 ```
 apt-get upgrade -y
@@ -156,6 +156,21 @@ Find all processes on port 8000
 
 Find and kill processes on port 8000
 `kill -9 $(lsof -ti:8000)` or `lsof -t -i tcp:8000 | xargs kill`
+
+List all user-installed packages:
+```
+(zcat $(ls -tr /var/log/apt/history.log*.gz); cat /var/log/apt/history.log) 2>/dev/null |
+egrep '^(Start-Date:|Commandline:)' |
+grep -v aptdaemon |
+egrep '^Commandline:'
+```
+
+Create SD card image:
+```
+sudo dd if=/dev/sdb of=/your/path/to/clone.img
+```
+
+Then shrink image file with [PiShrink](https://github.com/lisanet/PiShrink-macOS#usage)
 
 ## Contributing
 
