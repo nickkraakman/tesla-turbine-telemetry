@@ -30,7 +30,7 @@ This project runs on Raspbian Lite with openbox, and has auto-login to console e
 
 Several additional packages were installed, and various customizations were made to the configs, so I highly recommend to use the link below to download the disk image instead of starting from scratch.
 
-1. [Download latest disk image](https://waveguide.blog/telemetry-disk-image)
+1. [Download latest disk image](https://waveguide.blog/telemetry-disk-image) > Below I also list the packages that need to be installed if you decide to not use the disk image
 2. Insert SD card into computer (optionally format it as FAT32)
 3. [Download Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 4. Open Raspberry Pi Imager >> Click "CHOOSE OS" >> Select "Use custom" at the bottom of the list >> Open the disk image from step #1 above
@@ -41,6 +41,19 @@ Several additional packages were installed, and various customizations were made
 1. Connect your Raspberry Pi to your monitor through HDMI & plug in the power cable, and you're good to go!
 
 The Pi will take a minute or two to boot and auto-login, after which it will automatically launch the dashboard and will start reading data from the sensors.
+
+If you decide not to use the disk image, you can run the following command to install the necessary packages on your Pi:
+
+```
+apt-get upgrade -y
+apt-get install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox
+apt-get install --no-install-recommends chromium-browser
+apt-get install realvnc-vnc-server
+apt install i2c-tools
+apt-get install python3-smbus
+apt install pigpio
+apt-get install python-pigpio python3-pigpio
+```
 
 
 ### Optional installation steps
