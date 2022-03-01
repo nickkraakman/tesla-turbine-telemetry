@@ -1,4 +1,5 @@
 # Tesla Turbine Telemetry
+By [Waveguide](https://waveguide.blog)
 
 A sensor dashboard running on a Raspberry Pi to measure, display, and log key performance data for a Tesla Turbine.
 
