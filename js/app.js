@@ -360,6 +360,17 @@ $(function()
 
 
     /**
+     * Round to two decimals with high precision
+     * 
+     * @see https://www.delftstack.com/howto/javascript/javascript-round-to-2-decimal-places/#using-the-custom-function-to-round-a-number-to2-decimal-places-in-javascript
+     * @param {number} num Number we want to round
+     */
+    function roundToTwo(num) {
+        return +(Math.round(num + "e+2")  + "e-2");
+    }
+
+
+    /**
      * Display RPM, update RPM chart, and calculate related values
      * 
      * @param {object} data JSON object containing one reading of all sensors 
@@ -415,13 +426,15 @@ $(function()
         for (let index = 0; index < dataModel.temperature.length; index++) {
             let i = index === 1 ? "2" : ""
 
-            $("#card-temp #temperature" + i).html(data['temperature' + i] + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
+            let currentTemperature = roundToTwo(data['temperature' + i])
+
+            $("#card-temp #temperature" + i).html(currentTemperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
 
             let temperature = dataModel.temperature[index]
 
             // Calculate
-            temperature.temperatureMin = temperature.temperatureMin === null ? data['temperature' + i] : Math.min(temperature.temperatureMin, data['temperature' + i])
-            temperature.temperatureMax = temperature.temperatureMax === null ? data['temperature' + i] : Math.max(temperature.temperatureMax, data['temperature' + i])
+            temperature.temperatureMin = temperature.temperatureMin === null ? currentTemperature : Math.min(temperature.temperatureMin, currentTemperature)
+            temperature.temperatureMax = temperature.temperatureMax === null ? currentTemperature : Math.max(temperature.temperatureMax, currentTemperature)
 
             // Display
             $("#temperatureMin" + i).text( temperature.temperatureMin )
@@ -440,13 +453,15 @@ $(function()
         for (let index = 0; index < dataModel.pressure.length; index++) {
             let i = index === 1 ? "2" : ""
 
-            $("#card-pressure #pressure" + i).html(data['pressure' + i] + " Bar")  // @TODO: convert to PSI if Imperial is selected
+            let currentPressure = roundToTwo(data['pressure' + i])
+
+            $("#card-pressure #pressure" + i).html(currentPressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
 
             let pressure = dataModel.pressure[index]
 
             // Calculate
-            pressure.pressureMin = pressure.pressureMin === null ? data['pressure' + i] : Math.min(pressure.pressureMin, data['pressure' + i])
-            pressure.pressureMax = pressure.pressureMax === null ? data['pressure' + i] : Math.max(pressure.pressureMax, data['pressure' + i])
+            pressure.pressureMin = pressure.pressureMin === null ? currentPressure : Math.min(pressure.pressureMin, currentPressure)
+            pressure.pressureMax = pressure.pressureMax === null ? currentPressure : Math.max(pressure.pressureMax, currentPressure)
 
             // Display
             $("#pressureMin" + i).text( pressure.pressureMin )
