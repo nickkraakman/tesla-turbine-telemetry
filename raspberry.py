@@ -5,6 +5,7 @@ import time
 import csv
 import os
 import sys
+from copy import copy
 
 import RPi.GPIO as GPIO
 
@@ -86,7 +87,8 @@ def read_sensors():
 def write_sensor_data(sensor_data):
     """Write sensor data to a CSV file on the SD card for later analysis"""
 
-    sensor_data.pop('sessionId', None)  # Remove sessionId, as we don't need it inside the CSV
+    sensor_data_copy = copy(sensor_data)
+    sensor_data_copy.pop('sessionId', None)  # Remove sessionId, as we don't need it inside the CSV
 
     file_path = './sessions/' + session_id + '.csv'
 
@@ -95,14 +97,14 @@ def write_sensor_data(sensor_data):
     try:
         # Create file if not exist, else append new data
         with open(file_path, 'a') as csv_file:
-            csv_columns = list(sensor_data)  # Use keys as column names
+            csv_columns = list(sensor_data_copy)  # Use keys as column names
             writer = csv.DictWriter(csv_file, fieldnames=csv_columns)
-            
+
             # Write header if we're at the first line of the file
             if csv_file.tell() == 0:
                 writer.writeheader()
 
-            writer.writerow(sensor_data)
+            writer.writerow(sensor_data_copy)
 
     except IOError:
         print("Error writing to CSV file", file=sys.stderr)
