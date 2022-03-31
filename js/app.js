@@ -301,11 +301,11 @@ $(function()
 
         // Reset main data model
         dataModel = {
-            rotor: [rotorModel, rotorModel],
-            speed: [speedModel, speedModel],
-            power: [powerModel, powerModel],
-            temperature: [temperatureModel, temperatureModel],
-            pressure: [pressureModel, pressureModel],
+            rotor: [Object.create(rotorModel), Object.create(rotorModel)],
+            speed: [Object.create(speedModel), Object.create(speedModel)],
+            power: [Object.create(powerModel), Object.create(powerModel)],
+            temperature: [Object.create(temperatureModel), Object.create(temperatureModel)],
+            pressure: [Object.create(pressureModel), Object.create(pressureModel)],
         }
     }
     
