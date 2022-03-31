@@ -31,11 +31,11 @@ This project runs on Raspbian Lite with openbox, and has auto-login to console e
 
 Several additional packages were installed, and various customizations were made to the configs, so I highly recommend to use the link below to download the disk image instead of starting from scratch.
 
-1. [Download latest disk image](https://waveguide.blog/telemetry-disk-image) and unzip it >> Below I also list the packages that need to be installed if you decide to not use the disk image
+1. [Download latest disk image](https://waveguide.blog/telemetry-disk-image) >> Below I also list the packages that need to be installed if you decide to not use the disk image
 2. Insert SD card into computer (optionally format it as FAT32)
-3. [Download Raspberry Pi Imager](https://www.raspberrypi.com/software/)
-4. Open Raspberry Pi Imager >> Click "CHOOSE OS" >> Select "Use custom" at the bottom of the list >> Open the disk image from step #1 above
-5. Click "CHOOSE STORAGE" and select your SD card, then click "WRITE"
+3. [Download Balena Etcher](https://www.balena.io/etcher/)
+4. Open Balena Etcher >> Click "Flash from file" >> Select the disk image from step #1 above
+5. Now click "Select target" and select your SD card, then click "Flash!" and wait for the flashing and validating to finish
 6. Eject SD card from computer & insert it into your Raspberry Pi
 7. Hook up the sensors to the Raspberry Pi according to the following schematic:
 ![Tesla Turbine Telemetry schematic](https://waveguide.blog/static/github/pinout-and-schematics-v2.png)
