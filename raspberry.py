@@ -1,11 +1,15 @@
 """Functions related to the Raspberry Pi & GPIO"""
 
 import datetime
+from math import erf
 import time
 import csv
 import os
 import sys
 from copy import copy
+
+import numpy
+from scipy.special import erfc
 
 import RPi.GPIO as GPIO
 
@@ -20,8 +24,8 @@ session_id = None
 
 rpm_vars_model = {
     "previous_rpm": -1, # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
-    "period": 0,        # Time between RPM sensor triggers in ns
     "last_trigger": 0,  # Time of last RPM sensor trigger in ns
+    "periods": [],      # Times between RPM sensor triggers in ns
 }
 
 rpm_vars = [rpm_vars_model.copy(), rpm_vars_model.copy()]  # We're tracking data for 2 RPM sensors
@@ -126,15 +130,40 @@ def read_rpm(sensor = 1):
     global rpm_vars
 
     i = sensor - 1
-    period = rpm_vars[i]["period"]
+    periods = rpm_vars[i]["periods"]
     last_trigger = rpm_vars[i]["last_trigger"]
+
+    # Run Chauvenet's Criterion to remove outliers
+    # @See: https://www.statisticshowto.com/chauvenets-criterion/
+    # @See: https://github.com/msproteomicstools/msproteomicstools/blob/master/msproteomicstoolslib/math/chauvenet.py
+    criterion = 1.0/(2*len(periods))
+    valid_periods = []
+
+    # Step 1: Determine sample mean
+    mean = numpy.mean(periods)
+
+    # Step 2: Calculate standard deviation of sample
+    standard_deviation = numpy.std(periods)
+
+    # Step 3: For each value, calculate distance to mean in standard deviations
+    # Compare to criterion and store those that pass in valid_periods array
+    for period in periods:
+        distance = abs(period-mean)/standard_deviation  # Distance of a value to mean in stdv's
+        distance /= 2.0**0.5                            # The left and right tail threshold values
+        probability = erfc(distance)                    # Area normal distribution
+        if probability >= criterion:
+            valid_periods.append(period)                 # Store only non-outliers
 
     # Check if the last trigger time was > 2 seconds ago, if so, rotor has stopped, so set RPM to 0
     time_now = time.time_ns()
     if time_now - last_trigger > (2 * 1000 * 1000 * 1000):
         rpm = 0
     else:
-        rpm = 60 * (1 * 1000 * 1000 * 1000) / period if period > 0 else 0
+        valid_mean_period = numpy.mean(valid_periods)
+        rpm = 60 * (1 * 1000 * 1000 * 1000) / valid_mean_period if valid_mean_period > 0 else 0
+
+    # Reset RPM periods array so we can calculate a new average
+    rpm_vars[i]["periods"] = []
 
     return round(rpm)
 
@@ -193,7 +222,7 @@ def tacho_callback(channel):  # Channel = GPIO pin number
     last_trigger = rpm_vars[i]["last_trigger"]
 
     time_now = time.time_ns()
-    rpm_vars[i]["period"] = time_now - last_trigger
+    rpm_vars[i]["periods"].append(time_now - last_trigger)
     rpm_vars[i]["last_trigger"] = time_now
 
 

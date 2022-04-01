@@ -320,9 +320,6 @@ $(function()
 
         $("#session-id").text(data.sessionId === null ? "No active session" : data.sessionId)
 
-        // How to handle averages? Can't loop through all items every 500ms
-        // Should probably add up a total, and then read the length of the array so we know what to divide with
-
         if (sessionId === null && data.sessionId !== null) {
             // New session, so reset all charts and calculations
             applySettings()  // This also calls reset()
