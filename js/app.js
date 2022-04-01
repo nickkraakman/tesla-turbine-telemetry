@@ -194,8 +194,6 @@ $(function()
             })
         }
 
-        console.log('dataModel', dataModel)
-
         if (twoStage) {
             $(".two-stage").show()
         } else {
@@ -327,7 +325,7 @@ $(function()
 
         if (sessionId === null && data.sessionId !== null) {
             // New session, so reset all charts and calculations
-            reset()
+            applySettings()  // This also calls reset()
             timer = startTimer()
             
             displayRpm(data)
@@ -396,7 +394,7 @@ $(function()
             let rotor = dataModel.rotor[index] 
 
             speed.rpmMax = Math.max(speed.rpmMax, data['rpm' + i])
-            speed.rpmAvg = average(rpmChart.data.datasets[0].data)
+            speed.rpmAvg = average(rpmChart.data.datasets[index].data)
 
             speed.peripherySpeed = (rotor.diskCircumference * data['rpm' + i]) / 60000
             let peripherySpeedOld = (rotor.diskCircumference * rpmOld) / 60000
