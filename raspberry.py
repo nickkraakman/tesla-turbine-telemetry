@@ -185,7 +185,12 @@ def read_rpm(sensor = 1):
         rpm = 0
     else:
         valid_mean_period = numpy.mean(valid_periods)
-        rpm = 60 * (1 * 1000 * 1000 * 1000) / valid_mean_period if valid_mean_period > 0 else 0
+
+        # If we have only 10 or less periods, but they suggest a high RPM, this means they were spikes due to vibrations and should be ignored
+        if len(periods) < 10 and valid_mean_period < 1000000:  # Is valid_mean_period < 1ms (= 60.000 RPM, should be ~ 1000 samples), while we only have a few samples?
+            rpm = 0
+        else:
+            rpm = 60 * (1 * 1000 * 1000 * 1000) / valid_mean_period if valid_mean_period > 0 else 0
 
     # Reset RPM periods array so we can calculate a new average
     rpm_vars[i]["periods"] = []
