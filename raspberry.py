@@ -59,7 +59,7 @@ def read_sensors():
     temp_pressure_2 = read_temp_and_pressure(2)
 
     # Check if we have to start a new session
-    if (previous_rpm1 == 0 and current_rpm1 > 0 and session_id == None) or (previous_rpm2 == 0 and current_rpm2 > 0 and session_id == None):
+    if (previous_rpm1 == 0 and previous_rpm2 == 0 and (current_rpm1 > 0 or current_rpm2 > 0) and session_id == None):
         # We'll set time in UTC until we allow users to specify their timezone
         session_start = datetime.datetime.now(datetime.timezone.utc)
         session_id = session_start.strftime("%Y-%m-%d_%H.%M.%S")
@@ -79,7 +79,7 @@ def read_sensors():
         write_sensor_data(sensor_data)
 
     # Check if we have to end this session
-    if (previous_rpm1 > 0 and current_rpm1 == 0) or (previous_rpm2 > 0 and current_rpm2 == 0):
+    if ((previous_rpm1 > 0 or previous_rpm2 > 0) and current_rpm1 == 0 and current_rpm2 == 0 and session_id is not None):
         session_id = None
 
     rpm_vars[0]["previous_rpm"] = current_rpm1
