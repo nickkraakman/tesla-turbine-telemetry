@@ -37,11 +37,19 @@ Several additional packages were installed, and various customizations were made
 4. Open Balena Etcher >> Click "Flash from file" >> Select the disk image from step #1 above
 5. Now click "Select target" and select your SD card, then click "Flash!" and wait for the flashing and validating to finish
 6. Eject SD card from computer & insert it into your Raspberry Pi
-7. Hook up the sensors to the Raspberry Pi according to the following schematic:
+7. Hook up the sensors** to the Raspberry Pi according to the following schematic:
 ![Tesla Turbine Telemetry schematic](https://waveguide.blog/static/github/pinout-and-schematics-v2.png)
-1. Connect your Raspberry Pi to your monitor through HDMI & plug in the power cable, and you're good to go!
+Ensure the RPM sensors are ~1mm from the shaft, with the sensor's LED and receiver positioned perpendicular to the shaft. Also use paint or a permanent marker to add a dark line to the shaft for the sensor to trigger on.
+![RPM sensor closeup](https://waveguide.blog/static/github/rpm-closeup.jpg)
+8. Connect your Raspberry Pi to your monitor through HDMI & plug in the power cable, and you're good to go!
 
 The Pi will take a minute or two to boot and auto-login, after which it will automatically launch the dashboard and will start reading data from the sensors.
+
+---
+** If you're using Paul Townley's miniature Tesla Turbine, you can download some **3D printable attachments** here to make it super easy to attach the sensors: [Download models](https://drive.google.com/drive/folders/1Hq-xT-lT5vhaDyJDx8bzH9Laz37QqaPt?usp=sharing)
+
+---
+
 
 If you decide not to use the disk image, you can run the following commands to install the necessary packages on your Pi:
 
