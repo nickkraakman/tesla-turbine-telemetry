@@ -59,7 +59,7 @@ def read_sensors():
     temp_pressure_2 = read_temp_and_pressure(2)
 
     # Check if we have to start a new session
-    if (previous_rpm1 == 0 and current_rpm1 > 0) or (previous_rpm2 == 0 and current_rpm2 > 0):
+    if (previous_rpm1 == 0 and current_rpm1 > 0 and session_id == None) or (previous_rpm2 == 0 and current_rpm2 > 0 and session_id == None):
         # We'll set time in UTC until we allow users to specify their timezone
         session_start = datetime.datetime.now(datetime.timezone.utc)
         session_id = session_start.strftime("%Y-%m-%d_%H.%M.%S")
@@ -93,6 +93,18 @@ def write_sensor_data(sensor_data):
 
     sensor_data_copy = copy(sensor_data)
     sensor_data_copy.pop('sessionId', None)  # Remove sessionId, as we don't need it inside the CSV
+
+    # Add additional data to the log file
+    temperature = 0 if sensor_data_copy['temperature'] == None else sensor_data_copy['temperature']
+    temperature2 = 0 if sensor_data_copy['temperature2'] == None else sensor_data_copy['temperature2']
+    pressure = 0 if sensor_data_copy['pressure'] == None else sensor_data_copy['pressure']
+    pressure2 = 0 if sensor_data_copy['pressure2'] == None else sensor_data_copy['pressure2']
+    timestamp_now_utc = datetime.datetime.now(datetime.timezone.utc)
+    formatted_time_now_utc = timestamp_now_utc.strftime("%Y-%m-%d %H:%M:%S")
+
+    sensor_data_copy['temperatureDiff'] = numpy.diff([temperature, temperature2])  # Temperature difference
+    sensor_data_copy['pressureDiff'] = numpy.diff([pressure, pressure2])           # Pressure difference
+    sensor_data_copy['time'] = formatted_time_now_utc                              # Time
 
     file_path = './sessions/' + session_id + '.csv'
 
