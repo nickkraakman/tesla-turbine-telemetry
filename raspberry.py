@@ -117,6 +117,38 @@ def write_sensor_data(sensor_data):
     return True
 
 
+def filter_outliers(datapoints):
+    """Run Chauvenet's Criterion to remove outliers
+    @See: https://www.statisticshowto.com/chauvenets-criterion/
+    @See: https://github.com/msproteomicstools/msproteomicstools/blob/master/msproteomicstoolslib/math/chauvenet.py
+
+    Args:
+        datapoints (list): Array of datapoints from which to filter the outliers
+
+    Returns:
+        list: Valid datapoints with outliers removed
+    """
+    criterion = 1.0/(2*len(datapoints))
+    valid_datapoints = []
+
+    # Step 1: Determine sample mean
+    mean = numpy.mean(datapoints)
+
+    # Step 2: Calculate standard deviation of sample
+    standard_deviation = numpy.std(datapoints)
+
+    # Step 3: For each value, calculate distance to mean in standard deviations
+    # Compare to criterion and store those that pass in valid_periods array
+    for datapoint in datapoints:
+        distance = abs(datapoint-mean)/standard_deviation  # Distance of a value to mean in stdv's
+        distance /= 2.0**0.5                               # The left and right tail threshold values
+        probability = erfc(distance)                       # Area normal distribution
+        if probability >= criterion:
+            valid_datapoints.append(datapoint)             # Store only non-outliers
+    
+    return valid_datapoints
+
+
 def read_rpm(sensor = 1):
     """Determine RPM from period of one rotation in ns
     
@@ -133,26 +165,7 @@ def read_rpm(sensor = 1):
     periods = rpm_vars[i]["periods"]
     last_trigger = rpm_vars[i]["last_trigger"]
 
-    # Run Chauvenet's Criterion to remove outliers
-    # @See: https://www.statisticshowto.com/chauvenets-criterion/
-    # @See: https://github.com/msproteomicstools/msproteomicstools/blob/master/msproteomicstoolslib/math/chauvenet.py
-    criterion = 1.0/(2*len(periods))
-    valid_periods = []
-
-    # Step 1: Determine sample mean
-    mean = numpy.mean(periods)
-
-    # Step 2: Calculate standard deviation of sample
-    standard_deviation = numpy.std(periods)
-
-    # Step 3: For each value, calculate distance to mean in standard deviations
-    # Compare to criterion and store those that pass in valid_periods array
-    for period in periods:
-        distance = abs(period-mean)/standard_deviation  # Distance of a value to mean in stdv's
-        distance /= 2.0**0.5                            # The left and right tail threshold values
-        probability = erfc(distance)                    # Area normal distribution
-        if probability >= criterion:
-            valid_periods.append(period)                 # Store only non-outliers
+    valid_periods = filter_outliers(periods)
 
     # Check if the last trigger time was > 2 seconds ago, if so, rotor has stopped, so set RPM to 0
     time_now = time.time_ns()
