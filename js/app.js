@@ -7,6 +7,8 @@ $(function()
     var timer = null
     var timeout = 0
     var twoStage = true
+    var temperatureDiffMax = null
+    var pressureDiffMax = null
 
     // Constants
     const loopIntervalMs = 1000  // How often we request data from the sensors
@@ -46,11 +48,13 @@ $(function()
     }
 
     var temperatureModel = {
+        temperature: null,
         temperatureMin: null,
         temperatureMax: null,
     }
 
     var pressureModel = {
+        pressure: null,
         pressureMin: null,
         pressureMax: null,
     }
@@ -297,6 +301,9 @@ $(function()
         $("#seconds").html('00')
         $("#minutes").html('00')
 
+        temperatureDiffMax = null
+        pressureDiffMax = null
+
         // Reset main data model
         dataModel = {
             rotor: [Object.create(rotorModel), Object.create(rotorModel)],
@@ -427,6 +434,8 @@ $(function()
 
             let temperature = dataModel.temperature[index]
 
+            temperature.temperature = currentTemperature
+
             // Calculate
             temperature.temperatureMin = temperature.temperatureMin === null ? currentTemperature : Math.min(temperature.temperatureMin, currentTemperature)
             temperature.temperatureMax = temperature.temperatureMax === null ? currentTemperature : Math.max(temperature.temperatureMax, currentTemperature)
@@ -435,6 +444,10 @@ $(function()
             $("#temperatureMin" + i).text( temperature.temperatureMin )
             $("#temperatureMax" + i).text( temperature.temperatureMax )
         }
+
+        var currentTemperatureDiff = Math.abs(dataModel.temperature[0].temperature - dataModel.temperature[1].temperature)
+        temperatureDiffMax = temperatureDiffMax === null ? currentTemperatureDiff : Math.max(temperatureDiffMax, currentTemperatureDiff)
+        $("#temperatureDiffMax").text( temperatureDiffMax )
     }
 
 
@@ -454,6 +467,8 @@ $(function()
 
             let pressure = dataModel.pressure[index]
 
+            pressure.pressure = currentPressure
+
             // Calculate
             pressure.pressureMin = pressure.pressureMin === null ? currentPressure : Math.min(pressure.pressureMin, currentPressure)
             pressure.pressureMax = pressure.pressureMax === null ? currentPressure : Math.max(pressure.pressureMax, currentPressure)
@@ -462,6 +477,10 @@ $(function()
             $("#pressureMin" + i).text( pressure.pressureMin )
             $("#pressureMax" + i).text( pressure.pressureMax )
         }
+
+        var currentPressureDiff = Math.abs(dataModel.pressure[0].pressure - dataModel.pressure[1].pressure)
+        pressureDiffMax = pressureDiffMax === null ? currentPressureDiff : Math.max(pressureDiffMax, currentPressureDiff)
+        $("#pressureDiffMax").text( pressureDiffMax )
     }
 
 
