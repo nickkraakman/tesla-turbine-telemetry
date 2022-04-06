@@ -51,7 +51,7 @@ The Pi will take a minute or two to boot and auto-login, after which it will aut
 ---
 
 
-If you decide not to use the disk image, you can run the following commands to install the necessary packages on your Pi:
+If you decide not to use the disk image, you can run the following commands to install the necessary packages on your Pi (might need to prepend with `sudo`):
 
 ```
 apt-get upgrade -y
@@ -62,6 +62,7 @@ apt install i2c-tools
 apt-get install python3-smbus
 apt install pigpio
 apt-get install python-pigpio python3-pigpio
+apt install git
 ```
 
 
