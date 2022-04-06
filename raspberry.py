@@ -21,7 +21,7 @@ RPM2_PIN = 22
 VALVE_PIN = 12
 
 session_id = None
-last_sensor_reading = 0     # Time of last sensor reading
+last_sensor_reading = 0.0   # Time of last sensor reading
 read_interval = None        # Time between sensor readings
 
 rpm_vars_model = {
