@@ -21,11 +21,13 @@ RPM2_PIN = 22
 VALVE_PIN = 12
 
 session_id = None
+last_sensor_reading = None  # Time of last sensor reading
+read_interval = None        # Time between sensor readings
 
 rpm_vars_model = {
-    "previous_rpm": -1, # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
-    "last_trigger": 0,  # Time of last RPM sensor trigger in ns
-    "periods": [],      # Times between RPM sensor triggers in ns
+    "previous_rpm": -1,     # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
+    "last_trigger": 0,      # Time of last RPM sensor trigger in ns
+    "periods": [],          # Times between RPM sensor triggers in ns
 }
 
 rpm_vars = [rpm_vars_model.copy(), rpm_vars_model.copy()]  # We're tracking data for 2 RPM sensors
@@ -49,7 +51,9 @@ def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
 
-    global session_id, rpm_vars
+    global session_id, rpm_vars, last_sensor_reading, read_interval
+
+    read_interval = time.time() - last_sensor_reading  # In seconds, with more detail in decimal
 
     previous_rpm1 = rpm_vars[0]["previous_rpm"]
     previous_rpm2 = rpm_vars[1]["previous_rpm"]
@@ -84,6 +88,8 @@ def read_sensors():
 
     rpm_vars[0]["previous_rpm"] = current_rpm1
     rpm_vars[1]["previous_rpm"] = current_rpm2
+
+    last_sensor_reading = time.time()  # Current timestamp in seconds (float, so more detail after dot)
 
     return sensor_data
 
@@ -186,8 +192,10 @@ def read_rpm(sensor = 1):
     else:
         valid_mean_period = numpy.mean(valid_periods)
 
-        # If we have only 10 or less periods, but they suggest a high RPM, this means they were spikes due to vibrations and should be ignored
-        if len(periods) < 10 and valid_mean_period < 1000000:  # Is valid_mean_period < 1ms (= 60.000 RPM, should be ~ 1000 samples), while we only have a few samples?
+        # If we have way less samples than expected based on the length of the mean period, 
+        # we're probably dealing with a spike due to vibrations, which should be ignored
+        expected_samples = int(round(read_interval / (valid_mean_period / (1 * 1000 * 1000 * 1000))))  # Number of samples we can expect at the mean period over the read interval
+        if len(periods) < (expected_samples / 3):  # / 3 to give a margin of safety if sensor doesn't trigger each time it should
             rpm = 0
         else:
             rpm = 60 * (1 * 1000 * 1000 * 1000) / valid_mean_period if valid_mean_period > 0 else 0
