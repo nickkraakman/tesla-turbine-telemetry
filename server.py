@@ -76,6 +76,7 @@ def open_browser():
     """Start a browser showing the dashboard after waiting for half a second."""
     def _open_browser():
         if is_raspberrypi() == True:
+            os.system('rm -r ~/.cache/chromium/Default/Cache/*')  # Clear Chrome cache before opening the browser
             os.system('chromium-browser --noerrdialogs --disable-infobars --check-for-update-interval=31536000 --kiosk "http://localhost:%s/" & ' % (PORT))
         else:
             webbrowser.open('http://localhost:%s/' % (PORT))
