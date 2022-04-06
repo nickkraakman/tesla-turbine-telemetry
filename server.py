@@ -10,6 +10,7 @@ import json
 import webbrowser
 
 import raspberry
+import ota
 
 
 PORT = 8000
@@ -96,6 +97,8 @@ def init_raspberry():
 
 
 if __name__ == "__main__":
+    """These functions are run on startup of the Pi"""
+    ota.run()
     init_raspberry()
     open_browser()
     start_server()
