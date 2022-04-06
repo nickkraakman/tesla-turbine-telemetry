@@ -1,5 +1,3 @@
-# TEST OTA
-
 """Perform an over-the-air update if internet is available"""
 
 import subprocess

@@ -62,6 +62,8 @@ apt install i2c-tools
 apt-get install python3-smbus
 apt install pigpio
 apt-get install python-pigpio python3-pigpio
+apt-get install python3-numpy
+apt-get install python3-scipy
 apt install git
 ```
 
