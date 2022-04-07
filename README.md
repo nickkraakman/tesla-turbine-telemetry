@@ -140,6 +140,8 @@ I tested this with a [12V US Solid valve](https://www.amazon.nl/U-S-Solid-magnee
 
 ![Tesla Turbine Telemetry dashboard screenshot](https://waveguide.blog/static/github/valve-circuit.jpeg)
 
+However, a 5V relay might also be used.
+
 ### Accessing the logs
 Each time the RPM measurement goes from `0` to `>0`, the software will automatically start a new session, which is then logged to a CSV file for later analysis.
 
