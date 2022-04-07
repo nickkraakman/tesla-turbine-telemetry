@@ -62,6 +62,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json_response_string.encode(encoding='utf-8'))
 
 
+    def log_message(self, format, *args):
+        # Overwrite log_message function to prevent logging each request in the error log
+        #http.server.SimpleHTTPRequestHandler.log_message(self, format, *args)
+        return
+
+
 def is_raspberrypi():
     """Check whether this code is running on a Raspberry Pi or not"""
     try:
