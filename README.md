@@ -141,13 +141,16 @@ I tested this with a [12V US Solid valve](https://www.amazon.nl/U-S-Solid-magnee
 ![Tesla Turbine Telemetry dashboard screenshot](https://waveguide.blog/static/github/valve-circuit.jpeg)
 
 ### Accessing the logs
-
 Each time the RPM measurement goes from `0` to `>0`, the software will automatically start a new session, which is then logged to a CSV file for later analysis.
 
 These files are stored in the `/telemetry/sessions` folder, and can be accessed through FTP.
 
 The file names contain the time when the session started in the format `YYYYMMDDHHMMSS`
 
+### Over-the-air updates
+Each time the Pi boots up, it checks the `master` branch for updates, and pulls them to the device. This way you always have the latest and greatest updates without having to do anything yourself.
+
+To disable automatic over-the-air updates, comment out the line `ota.run()` in `server.py` by placing a `#` in front of it.
 
 ## Useful commands
 Check pigpio deamon status
