@@ -447,7 +447,7 @@ $(function()
 
         var currentTemperatureDiff = Math.abs(dataModel.temperature[0].temperature - dataModel.temperature[1].temperature)
         temperatureDiffMax = temperatureDiffMax === null ? currentTemperatureDiff : Math.max(temperatureDiffMax, currentTemperatureDiff)
-        $("#temperatureDiffMax").text( temperatureDiffMax )
+        $("#temperatureDiffMax").text( roundToTwo(temperatureDiffMax) )
     }
 
 
@@ -480,7 +480,7 @@ $(function()
 
         var currentPressureDiff = Math.abs(dataModel.pressure[0].pressure - dataModel.pressure[1].pressure)
         pressureDiffMax = pressureDiffMax === null ? currentPressureDiff : Math.max(pressureDiffMax, currentPressureDiff)
-        $("#pressureDiffMax").text( pressureDiffMax )
+        $("#pressureDiffMax").text( roundToTwo(pressureDiffMax) )
     }
 
 
