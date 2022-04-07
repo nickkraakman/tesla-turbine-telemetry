@@ -146,6 +146,9 @@ def filter_outliers(datapoints):
     Returns:
         list: Valid datapoints with outliers removed
     """
+    if (len(datapoints) == 0):
+        return datapoints
+
     criterion = 1.0/(2*len(datapoints))
     valid_datapoints = []
 
