@@ -108,9 +108,9 @@ def write_sensor_data(sensor_data):
     timestamp_now_utc = datetime.datetime.now(datetime.timezone.utc)
     formatted_time_now_utc = timestamp_now_utc.strftime("%Y-%m-%d %H:%M:%S")
 
-    sensor_data_copy['temperatureDiff'] = numpy.diff([temperature, temperature2])  # Temperature difference
-    sensor_data_copy['pressureDiff'] = numpy.diff([pressure, pressure2])           # Pressure difference
-    sensor_data_copy['time'] = formatted_time_now_utc                              # Time
+    sensor_data_copy['temperatureDiff'] = numpy.diff([temperature, temperature2])[0]  # Temperature difference
+    sensor_data_copy['pressureDiff'] = numpy.diff([pressure, pressure2])[0]           # Pressure difference
+    sensor_data_copy['time'] = formatted_time_now_utc                                 # Time
 
     file_path = './sessions/' + session_id + '.csv'
 
