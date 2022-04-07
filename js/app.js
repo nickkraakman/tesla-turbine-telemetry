@@ -403,7 +403,7 @@ $(function()
             speed.peripherySpeed = (rotor.diskCircumference * data['rpm' + i]) / 60000
             let peripherySpeedOld = (rotor.diskCircumference * rpmOld) / 60000
 
-            let accelerationOld = speed.acceleration
+            let accelerationOld = speed.acceleration.valueOf()
             speed.acceleration = (speed.peripherySpeed - peripherySpeedOld) / (loopIntervalMs / 1000)  // The acceleration between the last two data points
             speed.accelerationMax = Math.max(accelerationOld, speed.acceleration)
 
