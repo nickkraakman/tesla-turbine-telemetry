@@ -105,7 +105,7 @@ def init_raspberry():
 
 if __name__ == "__main__":
     """These functions are run on startup of the Pi"""
-    ota.run()
+    ota.run()           # Place a hashtag (#) in front of this line to disable over-the-air updates
     init_raspberry()
     open_browser()
     start_server()
