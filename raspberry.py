@@ -1,7 +1,7 @@
 """Functions related to the Raspberry Pi & GPIO"""
 
 import datetime
-from math import erf
+import math
 import time
 import csv
 import os
@@ -198,8 +198,8 @@ def read_rpm(sensor = 1):
 
         # If we have way less samples than expected based on the length of the mean period, 
         # we're probably dealing with a spike due to vibrations, which should be ignored
-        expected_samples = int(round(read_interval / (valid_mean_period / (1 * 1000 * 1000 * 1000))))  # Number of samples we can expect at the mean period over the read interval
-        if len(periods) < (expected_samples / 3):  # / 3 to give a margin of safety if sensor doesn't trigger each time it should
+        expected_samples = read_interval / (valid_mean_period / (1 * 1000 * 1000 * 1000))  # Number of samples we can expect at the mean period over the read interval
+        if math.isnan(expected_samples) or len(periods) < (expected_samples / 3):  # / 3 to give a margin of safety if sensor doesn't trigger each time it should
             rpm = 0
         else:
             rpm = 60 * (1 * 1000 * 1000 * 1000) / valid_mean_period if valid_mean_period > 0 else 0
