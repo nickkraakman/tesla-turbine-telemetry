@@ -298,6 +298,7 @@ $(function()
         })
         rpmChart.update()
 
+        stopTimer(timer)
         $("#seconds").html('00')
         $("#minutes").html('00')
 
