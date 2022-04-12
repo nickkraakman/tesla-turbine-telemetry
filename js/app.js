@@ -390,7 +390,7 @@ $(function()
         rpmChart.update()
 
         // Calculations
-        for (let index = 0; index < dataModel.speed.length; index++) {
+        for (let index = 0; index < twoStage ? 2 : 1; index++) {
             let i = index === 1 ? "2" : ""
 
             $('#card-rpm #rpm' + i).text( data['rpm' + i].toString().split(/(?=.{3}$)/).join(' ') )  // Add space to separate thousands
