@@ -466,7 +466,7 @@ $(function()
 
             let currentPressure = roundToTwo(data['pressure' + i])
 
-            $("#card-pressure #pressure" + i).html(currentPressure + " Bar")  // @TODO: convert to PSI if Imperial is selected
+            $("#card-pressure #pressure" + i).html(currentPressure + " Psi")  // @TODO: convert to PSI if Imperial is selected
 
             let pressure = dataModel.pressure[index]
 
