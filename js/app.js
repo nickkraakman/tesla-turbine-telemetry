@@ -389,8 +389,10 @@ $(function()
         if (twoStage) { rpmChart.data.datasets[1].data.push(data.rpm2) }
         rpmChart.update()
 
+        let stages = twoStage ? 2 : 1
+
         // Calculations
-        for (let index = 0; index < twoStage ? 2 : 1; index++) {
+        for (let index = 0; index < stages; index++) {
             let i = index === 1 ? "2" : ""
 
             $('#card-rpm #rpm' + i).text( data['rpm' + i].toString().split(/(?=.{3}$)/).join(' ') )  // Add space to separate thousands
