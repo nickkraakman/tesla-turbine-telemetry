@@ -99,6 +99,11 @@ $(function()
                     },
                     grid: {
                         display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time (Seconds)',
+                        color: '#95aac9',
                     }
                 }
             },
