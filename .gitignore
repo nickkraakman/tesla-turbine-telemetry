@@ -5,3 +5,4 @@ RPi_BACKUP
 logs
 errors.txt
 .DS_Store
+config.json
