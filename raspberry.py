@@ -19,6 +19,9 @@ import meas
 import json
 
 # Import config
+if not os.path.exists("config.json"):
+    os.rename("config.example.json", "config.json")
+
 with open("config.json") as json_data_file:
     config = json.load(json_data_file)
 
@@ -264,6 +267,44 @@ def close_valve():
     GPIO.output(VALVE_PIN, GPIO.LOW)
 
     return { "valveOpen": False }
+
+
+def zero_pressure(pressures = []):
+    """Set ambient pressure to zero by setting the offset in the config
+    
+    Args:
+        pressures (list): Array pressures
+
+    Returns:
+        bool: True if success, False if an error occurred
+    """
+
+    global config
+
+    try:
+        with open('config.json', 'r') as f:
+            configFile = json.load(f)
+
+        # Edit the data if enough datapoints are sent
+        if(len(pressures) < 2):
+            print("Unable to zero, <2 pressures received", file=sys.stderr)
+            return False
+
+        configFile['pressure']['pressure1']['offset'] = pressures[0]
+        configFile['pressure']['pressure2']['offset'] = pressures[1]
+
+        # Write it back to the file
+        with open('config.json', 'w') as f:
+            json.dump(configFile, f)
+
+        # Set new values in global config object
+        config = configFile 
+
+    except:
+        print("Error zeroing pressure", file=sys.stderr)
+        return False
+
+    return True
 
 
 def tacho_callback(channel):  # Channel = GPIO pin number
