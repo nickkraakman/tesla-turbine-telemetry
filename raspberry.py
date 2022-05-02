@@ -30,10 +30,6 @@ RPM1_PIN = config["rpm"]["rpm1"]["pin"]
 RPM2_PIN = config["rpm"]["rpm2"]["pin"]
 VALVE_PIN = config["valve"]["pin"]
 
-# For relative pressure, we set ambient to zero Psi using an offset
-pressure1_adjustment = 0 if config["pressure"]["measurementType"] == "absolute" else config["pressure1"]["offset"]
-pressure2_adjustment = 0 if config["pressure"]["measurementType"] == "absolute" else config["pressure2"]["offset"]
-
 session_id = None
 last_sensor_reading = 1.0   # Time of last sensor reading
 read_interval = None        # Time between sensor readings
@@ -65,7 +61,7 @@ def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
 
-    global session_id, rpm_vars, last_sensor_reading, read_interval, pressure1_adjustment, pressure2_adjustment
+    global session_id, rpm_vars, last_sensor_reading, read_interval
 
     read_interval = time.time() - last_sensor_reading  # In seconds, with more detail in decimal
 
@@ -88,8 +84,10 @@ def read_sensors():
         'rpm2': current_rpm2,
         'temperature': temp_pressure_1['temperature'],
         'temperature2': temp_pressure_2['temperature'],
-        'pressure': temp_pressure_1['pressure'] - pressure1_adjustment,
-        'pressure2': temp_pressure_2['pressure'] - pressure2_adjustment
+        'pressure': temp_pressure_1['pressure'],
+        'pressureRelative': temp_pressure_1['pressure'] - config["pressure1"]["offset"],
+        'pressure2': temp_pressure_2['pressure'],
+        'pressure2Relative': temp_pressure_2['pressure'] - config["pressure2"]["offset"]
     }
 
     # Only write sensor data if there is an active session
@@ -111,16 +109,14 @@ def read_sensors():
 def write_sensor_data(sensor_data):
     """Write sensor data to a CSV file on the SD card for later analysis"""
 
-    global pressure1_adjustment, pressure2_adjustment
-
     sensor_data_copy = copy(sensor_data)
     sensor_data_copy.pop('sessionId', None)  # Remove sessionId, as we don't need it inside the CSV
 
     # Add additional data to the log file
     temperature = 0 if sensor_data_copy['temperature'] == None else sensor_data_copy['temperature']
     temperature2 = 0 if sensor_data_copy['temperature2'] == None else sensor_data_copy['temperature2']
-    pressure = 0 if sensor_data_copy['pressure'] == None else sensor_data_copy['pressure'] - pressure1_adjustment
-    pressure2 = 0 if sensor_data_copy['pressure2'] == None else sensor_data_copy['pressure2'] - pressure2_adjustment
+    pressure = 0 if sensor_data_copy['pressureRelative'] == None else sensor_data_copy['pressureRelative']
+    pressure2 = 0 if sensor_data_copy['pressure2Relative'] == None else sensor_data_copy['pressure2Relative']
     timestamp_now_utc = datetime.datetime.now(datetime.timezone.utc)
     formatted_time_now_utc = timestamp_now_utc.strftime("%Y-%m-%d %H:%M:%S")
 
