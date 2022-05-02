@@ -25,10 +25,10 @@ with open("config.json") as json_data_file:
 RPM1_PIN = config["rpm"]["rpm1"]["pin"]
 RPM2_PIN = config["rpm"]["rpm2"]["pin"]
 VALVE_PIN = config["valve"]["pin"]
-PRESSURE_TYPE_ADJUSTMENT = 0 if config["pressure"]["measurementType"] == "absolute" else 14.7
 
-pressure1_adjustment = config["pressure1"]["offset"] + PRESSURE_TYPE_ADJUSTMENT
-pressure2_adjustment = config["pressure2"]["offset"] + PRESSURE_TYPE_ADJUSTMENT
+# For relative pressure, we set ambient to zero Psi using an offset
+pressure1_adjustment = 0 if config["pressure"]["measurementType"] == "absolute" else config["pressure1"]["offset"]
+pressure2_adjustment = 0 if config["pressure"]["measurementType"] == "absolute" else config["pressure2"]["offset"]
 
 session_id = None
 last_sensor_reading = 1.0   # Time of last sensor reading
