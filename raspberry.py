@@ -5,6 +5,7 @@ import math
 import time
 import csv
 import os
+import shutil
 import sys
 from copy import copy
 import json
@@ -20,7 +21,7 @@ import json
 
 # Import config
 if not os.path.exists("config.json"):
-    os.rename("config.example.json", "config.json")
+    shutil.copyfile("config.example.json", "config.json")
 
 with open("config.json") as json_data_file:
     config = json.load(json_data_file)
