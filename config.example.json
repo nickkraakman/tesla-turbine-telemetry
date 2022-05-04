@@ -18,5 +18,8 @@
     },
     "valve": {
         "pin": 12
+    },
+    "temperature": {
+        "pin": 17
     }
 }

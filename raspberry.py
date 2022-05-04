@@ -16,6 +16,7 @@ from scipy.special import erfc
 import RPi.GPIO as GPIO
 
 import meas
+from ds18b20 import DS18B20
 
 import json
 
@@ -29,6 +30,7 @@ with open("config.json") as json_data_file:
 RPM1_PIN = config["rpm"]["rpm1"]["pin"]
 RPM2_PIN = config["rpm"]["rpm2"]["pin"]
 VALVE_PIN = config["valve"]["pin"]
+TEMPERATURE_PIN = config["temperature"]["pin"]
 
 session_id = None
 last_sensor_reading = 1.0   # Time of last sensor reading
@@ -69,8 +71,8 @@ def read_sensors():
     previous_rpm2 = rpm_vars[1]["previous_rpm"]
     current_rpm1 = read_rpm(1)
     current_rpm2 = read_rpm(2)
-    temp_pressure_1 = read_temp_and_pressure(1)
-    temp_pressure_2 = read_temp_and_pressure(2)
+    pressure_1 = read_pressure(1)
+    pressure_2 = read_pressure(2)
 
     # Check if we have to start a new session
     if (previous_rpm1 == 0 and previous_rpm2 == 0 and (current_rpm1 > 0 or current_rpm2 > 0) and session_id == None):
@@ -82,12 +84,13 @@ def read_sensors():
         'sessionId': session_id,
         'rpm': current_rpm1, 
         'rpm2': current_rpm2,
-        'temperature': temp_pressure_1['temperature'],
-        'temperature2': temp_pressure_2['temperature'],
-        'pressure': temp_pressure_1['pressure'],
-        'pressureRelative': temp_pressure_1['pressure'] - config["pressure1"]["offset"],
-        'pressure2': temp_pressure_2['pressure'],
-        'pressure2Relative': temp_pressure_2['pressure'] - config["pressure2"]["offset"]
+        'temperature': read_temperature(1),     # Inlet temperature
+        'temperature2': read_temperature(2),    # Outlet temperature
+        'temperature3': read_temperature(3),    # Ambient temperature
+        'pressure': pressure_1['pressure'],
+        'pressureRelative': pressure_1['pressure'] - config["pressure1"]["offset"],
+        'pressure2': pressure_2['pressure'],
+        'pressure2Relative': pressure_2['pressure'] - config["pressure2"]["offset"]
     }
 
     # Only write sensor data if there is an active session
@@ -222,8 +225,11 @@ def read_rpm(sensor = 1):
     return round(rpm)
 
 
-def read_temp_and_pressure(sensor = 1):
-    """Read temperature & pressure from MEAS M32JM sensor
+def read_pressure(sensor = 1):
+    """Read pressure from MEAS M32JM sensor
+
+    Temperature returned is only used for internal calibration of the sensor, and is NOT
+    the temperature of the medium, but is the temperature of the sensor's membrane
 
     Args:
         sensor (int): Which of the M32JM sensors to read (1 or 2)
@@ -248,6 +254,21 @@ def read_temp_and_pressure(sensor = 1):
         }
 
     return response
+
+
+def read_temperature(sensor = 1):
+    """Read DS18B20 temperature sensors
+
+    Args:
+        sensor (int): Which of the DS18B20 sensors to read (1, 2, or 3)
+
+    Returns:
+        float: temperature in ºC, or None if sensor index is out of range
+    """
+    i = sensor - 1
+    temperature_class = DS18B20()
+
+    return temperature_class.tempC(i)
 
 
 def open_valve():
