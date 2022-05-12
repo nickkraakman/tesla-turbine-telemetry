@@ -35,6 +35,8 @@ TEMPERATURE_PIN = config["temperature"]["pin"]
 session_id = None
 last_sensor_reading = 1.0   # Time of last sensor reading
 read_interval = None        # Time between sensor readings
+temperature_class = DS18B20()
+temperature_sensors = temperature_class.device_count()
 
 rpm_vars_model = {
     "previous_rpm": -1,     # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
@@ -265,10 +267,15 @@ def read_temperature(sensor = 1):
     Returns:
         float: temperature in ºC, or None if sensor index is out of range
     """
-    i = sensor - 1
-    temperature_class = DS18B20()
+    
+    global temperature_class, temperature_sensors
 
-    return temperature_class.tempC(i)
+    i = sensor - 1
+
+    print("Number of sensors = ", temperature_sensors, file=sys.stderr)
+    print("i = ", i, file=sys.stderr)
+
+    return temperature_class.tempC(i) if i < temperature_sensors else None
 
 
 def open_valve():
