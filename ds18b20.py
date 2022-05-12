@@ -73,7 +73,13 @@ class DS18B20:
             return None
 
         (discard, sep, reading) = data.partition(' t=')
+
+        if reading == 85000:
+            # 85ºC is the boot temperature of the sensor, so ignore that value
+            return None
+
         temperature = float(reading) / 1000.0
+
         return temperature
 
 
