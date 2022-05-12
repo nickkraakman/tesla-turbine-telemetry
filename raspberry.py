@@ -90,9 +90,9 @@ def read_sensors():
         'temperature2': read_temperature(2),    # Outlet temperature
         'temperature3': read_temperature(3),    # Ambient temperature
         'pressure': pressure_1['pressure'],
-        'pressureRelative': pressure_1['pressure'] - config["pressure1"]["offset"],
+        'pressureRelative': None if pressure_1['pressure'] == None else pressure_1['pressure'] - config["pressure"]["pressure1"]["offset"],
         'pressure2': pressure_2['pressure'],
-        'pressure2Relative': pressure_2['pressure'] - config["pressure2"]["offset"]
+        'pressure2Relative': None if pressure_2['pressure'] == None else pressure_2['pressure'] - config["pressure"]["pressure2"]["offset"]
     }
 
     # Only write sensor data if there is an active session
@@ -271,9 +271,6 @@ def read_temperature(sensor = 1):
     global temperature_class, temperature_sensors
 
     i = sensor - 1
-
-    print("Number of sensors = ", temperature_sensors, file=sys.stderr)
-    print("i = ", i, file=sys.stderr)
 
     return temperature_class.tempC(i) if i < temperature_sensors else None
 

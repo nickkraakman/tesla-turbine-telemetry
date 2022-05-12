@@ -47,38 +47,34 @@ class DS18B20:
             return False
 
         f = open(self._device_file[index], 'r')
-        lines = f.readlines()
+        data = f.read()
         f.close()
-        return lines
+        return data
 
 
     def tempC(self, index=0):
         # Call this to get the temperature in degrees C
         # detected by a sensor
-        lines = self._read_temp(index)
+        data = self._read_temp(index)
         retries = 5
 
         # Check for error
-        if lines == False:
+        if data == False:
             return None
 
-        while (lines[0].strip()[-3:] != 'YES') and (retries > 0):
+        while (not "YES" in data) and (retries > 0):
             # Read failed so try again
             time.sleep(0.1)
             #print('Read Failed', retries)
-            lines = self._read_temp(index)
+            data = self._read_temp(index)
             retries -= 1
 
         if retries == 0:
             return None
 
-        equals_pos = lines[1].find('t=')
-        if equals_pos != -1:
-            temp = lines[1][equals_pos + 2:]
-            return float(temp)/1000
-        else:
-            # Error
-            return None
+        (discard, sep, reading) = data.partition(' t=')
+        temperature = float(reading) / 1000.0
+        return temperature
 
 
     def device_count(self):

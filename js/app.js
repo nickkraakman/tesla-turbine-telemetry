@@ -373,6 +373,7 @@ $(function()
      * Round to two decimals with high precision
      * 
      * @see https://www.delftstack.com/howto/javascript/javascript-round-to-2-decimal-places/#using-the-custom-function-to-round-a-number-to2-decimal-places-in-javascript
+     * @todo Enable this function to round to any number of decimals
      * @param {number} num Number we want to round
      */
     function roundToTwo(num) {
