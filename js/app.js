@@ -345,7 +345,6 @@ $(function()
         } else if (sessionId !== null && data.sessionId === null) {
             // End session
             stopTimer(timer)
-            timer = null
         } else {
             // Active session
             displayRpm(data)
@@ -529,6 +528,12 @@ $(function()
      */
     function startTimer()
     {
+        // If there's an existing timer, stop that one first
+        if (timer !== null)
+        {
+            stopTimer(timer)
+        }
+
         let seconds = 0
         function pad ( val ) { return val > 9 ? val : "0" + val; }
         return setInterval( function() {
@@ -541,11 +546,12 @@ $(function()
     /**
      * Stop a timer
      * 
-     * @param {object} timer The timer object
+     * @param {object} timerObject The timer object
      */
-    function stopTimer(timer)
+    function stopTimer(timerObject)
     {
-        clearInterval ( timer )
+        clearInterval ( timerObject )
+        timer = null
     }
 
 
@@ -616,6 +622,27 @@ $(function()
             },
         })
     }
+
+
+    $("#start-session-btn").on( "click", function() 
+    {
+        $(this).hide()
+
+        
+
+        $("#stop-session-btn").show()
+
+        openValve(newState)
+    })
+
+
+    $("#stop-session-btn").on( "click", function() 
+    {
+        $(this).hide()
+        $("#start-session-btn").show()
+
+        openValve(newState)
+    })
 
 
     /**
