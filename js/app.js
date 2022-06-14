@@ -67,7 +67,7 @@ $(function()
         rotor: [Object.create(rotorModel), Object.create(rotorModel)],
         speed: [Object.create(speedModel), Object.create(speedModel)],
         power: [Object.create(powerModel), Object.create(powerModel)],
-        temperature: [Object.create(temperatureModel), Object.create(temperatureModel)],
+        temperature: [Object.create(temperatureModel), Object.create(temperatureModel), Object.create(temperatureModel)],
         pressure: [Object.create(pressureModel), Object.create(pressureModel)],
     }
 
@@ -437,7 +437,7 @@ $(function()
     function displayTemperature(data)
     {   
         for (let index = 0; index < dataModel.temperature.length; index++) {
-            let i = index === 1 ? "2" : ""
+            let i = index === 0 ? "" : toString(index + 1)
 
             let currentTemperature = roundToTwo(data['temperature' + i])
 
@@ -451,9 +451,12 @@ $(function()
             temperature.temperatureMin = temperature.temperatureMin === null ? currentTemperature : Math.min(temperature.temperatureMin, currentTemperature)
             temperature.temperatureMax = temperature.temperatureMax === null ? currentTemperature : Math.max(temperature.temperatureMax, currentTemperature)
 
-            // Display
-            $("#temperatureMin" + i).text( temperature.temperatureMin )
-            $("#temperatureMax" + i).text( temperature.temperatureMax )
+            // Display (don't display min/max for ambient, as it will hardly change)
+            if (index !== 2)
+            {
+                $("#temperatureMin" + i).text( temperature.temperatureMin )
+                $("#temperatureMax" + i).text( temperature.temperatureMax )
+            }
         }
 
         var currentTemperatureDiff = Math.abs(dataModel.temperature[0].temperature - dataModel.temperature[1].temperature)
