@@ -306,8 +306,6 @@ $(function()
         rpmChart.update()
 
         stopTimer(timer)
-        $("#seconds").html('00')
-        $("#minutes").html('00')
 
         temperatureDiffMax = null
         pressureDiffMax = null
@@ -347,7 +345,6 @@ $(function()
         } else if (sessionId !== null && data.sessionId === null) {
             // End session
             stopTimer(timer)
-            timer = null
         } else {
             // Active session
             displayRpm(data)
@@ -544,6 +541,12 @@ $(function()
      */
     function startTimer()
     {
+        // If there's an existing timer, stop that one first
+        if (timer !== null)
+        {
+            stopTimer(timer)
+        }
+
         let seconds = 0
         function pad ( val ) { return val > 9 ? val : "0" + val; }
         return setInterval( function() {
@@ -556,11 +559,14 @@ $(function()
     /**
      * Stop a timer
      * 
-     * @param {object} timer The timer object
+     * @param {object} timerObject The timer object
      */
-    function stopTimer(timer)
+    function stopTimer(timerObject)
     {
-        clearInterval ( timer )
+        clearInterval ( timerObject )
+        timer = null
+        $("#seconds").html('00')
+        $("#minutes").html('00')
     }
 
 
@@ -638,6 +644,64 @@ $(function()
                 console.error(request.responseText)
                 $("#valve-btn .fe").removeClass("fe-clock").removeClass("fe-stop-circle").addClass("fe-play-circle")
                 $("#valve-btn").data( "state", false )
+            },
+        })
+    }
+
+
+    $("#start-session-btn").on( "click", function() 
+    {
+        $(this).hide()
+
+        timer = startTimer()
+
+        $("#stop-session-btn").show()
+
+        toggleSession("start")
+    })
+
+
+    $("#stop-session-btn").on( "click", function() 
+    {
+        $(this).hide()
+
+        stopTimer(timer)
+
+        $("#start-session-btn").show()
+
+        toggleSession("stop")
+    })
+
+
+    /**
+    * Start or stop a test session
+    * 
+    * @param {string} action "start" or "stop"
+    */
+    function toggleSession(action)
+    {
+        // Show loading indicator
+        //$("#valve-btn .fe").removeClass("fe-play-circle").addClass("fe-clock")
+
+        let request_data = {
+            action: action === "start" ? "start_session" : "stop_session"
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8000/session",
+            contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
+            success: function(data, text)
+            {
+                console.log(data)
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
+                stopTimer(timer)
+                $("#stop-session-btn").hide()
+                $("#start-session-btn").show()
             },
         })
     }
