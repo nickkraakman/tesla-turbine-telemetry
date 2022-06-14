@@ -671,23 +671,12 @@ $(function()
             success: function(data, text)
             {
                 console.log(data)
-
-                // Update button state in Dashboard
-                /*if (data.valveOpen === true)
-                {
-                    // Set button to opened state (show stop)
-                    $("#valve-btn").data( "state", true )
-                    $("#valve-btn .fe").removeClass("fe-clock").addClass("fe-stop-circle")
-                } else {
-                    // Set button to closed state (show play)
-                    $("#valve-btn").data( "state", false )
-                    $("#valve-btn .fe").removeClass("fe-stop-circle").addClass("fe-play-circle")
-                }*/
             }, 
             error: function (request, status, error) {
                 console.error(request.responseText)
-                //$("#valve-btn .fe").removeClass("fe-clock").removeClass("fe-stop-circle").addClass("fe-play-circle")
-                //$("#valve-btn").data( "state", false )
+                stopTimer(timer)
+                $("#stop-session-btn").hide()
+                $("#start-session-btn").show()
             },
         })
     }
