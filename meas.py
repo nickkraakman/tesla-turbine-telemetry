@@ -71,7 +71,7 @@ def read_m3200(sensor = 1):
 
     if count < 0:
         print("Error reading from the sensor on bus %s" % bus, file=sys.stderr)
-        subprocess.run(["/usr/sbin/i2cdetect", "-y", bus])  # Running the i2cdetect command tends to solve this error on the next call
+        subprocess.run(["/usr/sbin/i2cdetect", "-y", str(bus)])  # Running the i2cdetect command tends to solve this error on the next call
         return None
 
     print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits, other 6 bits are pressure bits
@@ -106,7 +106,7 @@ def read_m3200(sensor = 1):
     temperature = Tvalue * Tscope / Tspan - 50
     pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin
 
-    print("Temperature =", temperature, "ºC")  # Temperature in ºC
+    print("Temperature =", temperature, "ºC")  # Temperature in ºC = INTERNAL temperature used for calibration, NOT temperature of the medium unfortunately
     print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is ~14.69, 0 is perfect vacuum)
 
     return {

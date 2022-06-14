@@ -1,0 +1,25 @@
+{
+    "pressure": {
+        "measurementType": "relative",
+        "pressure1": {
+            "offset": 0
+        },
+        "pressure2": {
+            "offset": 0
+        }
+    },
+    "rpm": {
+        "rpm1": {
+            "pin": 4
+        },
+        "rpm2": {
+            "pin": 22
+        }
+    },
+    "valve": {
+        "pin": 12
+    },
+    "temperature": {
+        "pin": 17
+    }
+}

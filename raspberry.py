@@ -5,8 +5,10 @@ import math
 import time
 import csv
 import os
+import shutil
 import sys
 from copy import copy
+import json
 
 import numpy
 from scipy.special import erfc
@@ -14,15 +16,27 @@ from scipy.special import erfc
 import RPi.GPIO as GPIO
 
 import meas
+from ds18b20 import DS18B20
 
+import json
 
-RPM1_PIN = 4
-RPM2_PIN = 22
-VALVE_PIN = 12
+# Import config
+if not os.path.exists("config.json"):
+    shutil.copyfile("config.example.json", "config.json")
+
+with open("config.json") as json_data_file:
+    config = json.load(json_data_file)
+
+RPM1_PIN = config["rpm"]["rpm1"]["pin"]
+RPM2_PIN = config["rpm"]["rpm2"]["pin"]
+VALVE_PIN = config["valve"]["pin"]
+TEMPERATURE_PIN = config["temperature"]["pin"]
 
 session_id = None
 last_sensor_reading = 1.0   # Time of last sensor reading
 read_interval = None        # Time between sensor readings
+temperature_class = DS18B20()
+temperature_sensors = temperature_class.device_count()
 
 rpm_vars_model = {
     "previous_rpm": -1,     # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
@@ -59,8 +73,8 @@ def read_sensors():
     previous_rpm2 = rpm_vars[1]["previous_rpm"]
     current_rpm1 = read_rpm(1)
     current_rpm2 = read_rpm(2)
-    temp_pressure_1 = read_temp_and_pressure(1)
-    temp_pressure_2 = read_temp_and_pressure(2)
+    pressure_1 = read_pressure(1)
+    pressure_2 = read_pressure(2)
 
     # Check if we have to start a new session
     if (previous_rpm1 == 0 and previous_rpm2 == 0 and (current_rpm1 > 0 or current_rpm2 > 0) and session_id == None):
@@ -70,10 +84,13 @@ def read_sensors():
         'sessionId': session_id,
         'rpm': current_rpm1, 
         'rpm2': current_rpm2,
-        'temperature': temp_pressure_1['temperature'],
-        'temperature2': temp_pressure_2['temperature'],
-        'pressure': temp_pressure_1['pressure'],
-        'pressure2': temp_pressure_2['pressure']
+        'temperature': read_temperature(1),     # Inlet temperature
+        'temperature2': read_temperature(2),    # Outlet temperature
+        'temperature3': read_temperature(3),    # Ambient temperature
+        'pressure': pressure_1['pressure'],
+        'pressureRelative': None if pressure_1['pressure'] == None else pressure_1['pressure'] - config["pressure"]["pressure1"]["offset"],
+        'pressure2': pressure_2['pressure'],
+        'pressure2Relative': None if pressure_2['pressure'] == None else pressure_2['pressure'] - config["pressure"]["pressure2"]["offset"]
     }
 
     # Only write sensor data if there is an active session
@@ -101,8 +118,8 @@ def write_sensor_data(sensor_data):
     # Add additional data to the log file
     temperature = 0 if sensor_data_copy['temperature'] == None else sensor_data_copy['temperature']
     temperature2 = 0 if sensor_data_copy['temperature2'] == None else sensor_data_copy['temperature2']
-    pressure = 0 if sensor_data_copy['pressure'] == None else sensor_data_copy['pressure']
-    pressure2 = 0 if sensor_data_copy['pressure2'] == None else sensor_data_copy['pressure2']
+    pressure = 0 if sensor_data_copy['pressureRelative'] == None else sensor_data_copy['pressureRelative']
+    pressure2 = 0 if sensor_data_copy['pressure2Relative'] == None else sensor_data_copy['pressure2Relative']
     timestamp_now_utc = datetime.datetime.now(datetime.timezone.utc)
     formatted_time_now_utc = timestamp_now_utc.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -208,8 +225,11 @@ def read_rpm(sensor = 1):
     return round(rpm)
 
 
-def read_temp_and_pressure(sensor = 1):
-    """Read temperature & pressure from MEAS M32JM sensor
+def read_pressure(sensor = 1):
+    """Read pressure from MEAS M32JM sensor
+
+    Temperature returned is only used for internal calibration of the sensor, and is NOT
+    the temperature of the medium, but is the temperature of the sensor's membrane
 
     Args:
         sensor (int): Which of the M32JM sensors to read (1 or 2)
@@ -234,6 +254,23 @@ def read_temp_and_pressure(sensor = 1):
         }
 
     return response
+
+
+def read_temperature(sensor = 1):
+    """Read DS18B20 temperature sensors
+
+    Args:
+        sensor (int): Which of the DS18B20 sensors to read (1, 2, or 3)
+
+    Returns:
+        float: temperature in ºC, or None if sensor index is out of range
+    """
+    
+    global temperature_class, temperature_sensors
+
+    i = sensor - 1
+
+    return temperature_class.tempC(i) if i < temperature_sensors else None
 
 
 def open_valve():
@@ -272,6 +309,44 @@ def stop_session():
     session_id = None
 
     return { "session": session_id }
+
+  
+def zero_pressure(pressures = []):
+    """Set ambient pressure to zero by setting the offset in the config
+    
+    Args:
+        pressures (list): Array pressures
+
+    Returns:
+        bool: True if success, False if an error occurred
+    """
+
+    global config
+
+    try:
+        with open('config.json', 'r') as f:
+            configFile = json.load(f)
+
+        # Edit the data if enough datapoints are sent
+        if(len(pressures) < 2):
+            print("Unable to zero, <2 pressures received", file=sys.stderr)
+            return False
+
+        configFile['pressure']['pressure1']['offset'] = pressures[0]
+        configFile['pressure']['pressure2']['offset'] = pressures[1]
+
+        # Write it back to the file
+        with open('config.json', 'w') as f:
+            json.dump(configFile, f)
+
+        # Set new values in global config object
+        config = configFile 
+
+    except:
+        print("Error zeroing pressure", file=sys.stderr)
+        return False
+
+    return True
 
 
 def tacho_callback(channel):  # Channel = GPIO pin number

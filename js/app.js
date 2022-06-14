@@ -9,6 +9,7 @@ $(function()
     var twoStage = true
     var temperatureDiffMax = null
     var pressureDiffMax = null
+    var autoZeroed = false
 
     // Constants
     const loopIntervalMs = 1000  // How often we request data from the sensors
@@ -54,7 +55,8 @@ $(function()
     }
 
     var pressureModel = {
-        pressure: null,
+        pressure: null,          // Absolute pressure, raw from sensor
+        pressureRelative: null,  // Relative pressure, calibrated from ambient
         pressureMin: null,
         pressureMax: null,
     }
@@ -368,6 +370,7 @@ $(function()
      * Round to two decimals with high precision
      * 
      * @see https://www.delftstack.com/howto/javascript/javascript-round-to-2-decimal-places/#using-the-custom-function-to-round-a-number-to2-decimal-places-in-javascript
+     * @todo Enable this function to round to any number of decimals
      * @param {number} num Number we want to round
      */
     function roundToTwo(num) {
@@ -466,26 +469,35 @@ $(function()
         for (let index = 0; index < dataModel.pressure.length; index++) {
             let i = index === 1 ? "2" : ""
 
-            let currentPressure = roundToTwo(data['pressure' + i])
+            let currentPressureAbsolute = roundToTwo(data[`pressure${i}`])
+            let currentPressureRelative = roundToTwo(data[`pressure${i}Relative`])  // We want to display relative pressure, might make this configurable at some point
 
             $("#card-pressure #pressure" + i).html(currentPressure + " Psi")  // @TODO: convert to PSI if Imperial is selected
 
             let pressure = dataModel.pressure[index]
 
-            pressure.pressure = currentPressure
+            pressure.pressure = currentPressureAbsolute
+            pressure.pressureRelative = currentPressureRelative
 
             // Calculate
-            pressure.pressureMin = pressure.pressureMin === null ? currentPressure : Math.min(pressure.pressureMin, currentPressure)
-            pressure.pressureMax = pressure.pressureMax === null ? currentPressure : Math.max(pressure.pressureMax, currentPressure)
+            pressure.pressureMin = pressure.pressureMin === null ? currentPressureRelative : Math.min(pressure.pressureMin, currentPressureRelative)
+            pressure.pressureMax = pressure.pressureMax === null ? currentPressureRelative : Math.max(pressure.pressureMax, currentPressureRelative)
 
             // Display
             $("#pressureMin" + i).text( pressure.pressureMin )
             $("#pressureMax" + i).text( pressure.pressureMax )
         }
 
-        var currentPressureDiff = Math.abs(dataModel.pressure[0].pressure - dataModel.pressure[1].pressure)
+        var currentPressureDiff = Math.abs(dataModel.pressure[0].pressureRelative - dataModel.pressure[1].pressureRelative)
         pressureDiffMax = pressureDiffMax === null ? currentPressureDiff : Math.max(pressureDiffMax, currentPressureDiff)
         $("#pressureDiffMax").text( roundToTwo(pressureDiffMax) )
+
+        if (!autoZeroed)
+        {
+            // Auto-zero the pressure on first sensor read based on ABSOLUTE pressures from sensors
+            zeroPressure(dataModel.pressure[0], dataModel.pressure[1])
+            autoZeroed = true
+        }
     }
 
 
@@ -567,6 +579,16 @@ $(function()
             $(".data-wrapper").show()
             $("#more-stats-btn .fe").removeClass("fe-eye-off").addClass("fe-eye")
         }
+    })
+
+
+    $("#zero-btn").on( "click", function() 
+    {
+        let pressure1 = dataModel.pressure[0].pressure
+        let pressure2 = dataModel.pressure[1].pressure
+        let pressures = [pressure1, pressure2]
+
+        zeroPressure(pressures)
     })
 
 
@@ -677,6 +699,35 @@ $(function()
                 stopTimer(timer)
                 $("#stop-session-btn").hide()
                 $("#start-session-btn").show()
+            },
+        })
+    }
+
+
+    /**
+    * Calibrates current pressure as ambient pressure, so we can return ambient pressure as 0 psi
+    * 
+    * @param {array} pressures Current pressures to be used for zeroing
+    */
+    function zeroPressure(pressures)
+    {
+        let request_data = {
+            action: "zero_pressure",
+            payload: pressures
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8000/zero",
+            contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
+            success: function(data, text)
+            {
+                console.log("Zeroing", data)
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
             },
         })
     }
