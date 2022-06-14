@@ -203,7 +203,7 @@
           <div class="card" id="card-pressure">
             <div class="card-header d-flex">
               <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-loader mr-2"></i></span> Pressure</h6>
-              <button type="button" class="btn btn-dark ml-auto" title="Click to zero the pressure sensors" id="zero-btn">Zero</button>
+              <button type="button" class="btn btn-dark btn-sm ml-auto" title="Click to zero the pressure sensors" id="zero-btn">Zero</button>
             </div>
             <div class="card-body text-center">
               <div class="data-horizontal row mb-3">
@@ -298,8 +298,10 @@
           </div>
 
           <div class="card" id="card-run-time">
-            <div class="card-header">
+            <div class="card-header d-flex">
               <h6 class="d-flex align-items-center"><span class="icon"><i class="fe fe-clock mr-2"></i></span> Run time</h6>
+              <button type="button" class="btn btn-dark btn-sm ml-auto" title="Start a new session" id="start-session-btn">Start session</button>
+              <button type="button" class="btn btn-danger btn-sm ml-auto" title="Stop an active session" id="stop-session-btn" style="display: none">Stop session</button>
             </div>
             <div class="card-body text-center">
               <h1 class="card-text">
