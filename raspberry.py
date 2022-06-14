@@ -64,9 +64,7 @@ def read_sensors():
 
     # Check if we have to start a new session
     if (previous_rpm1 == 0 and previous_rpm2 == 0 and (current_rpm1 > 0 or current_rpm2 > 0) and session_id == None):
-        # We'll set time in UTC until we allow users to specify their timezone
-        session_start = datetime.datetime.now(datetime.timezone.utc)
-        session_id = session_start.strftime("%Y-%m-%d_%H.%M.%S")
+        start_session()
 
     sensor_data = {
         'sessionId': session_id,
@@ -84,7 +82,7 @@ def read_sensors():
 
     # Check if we have to end this session
     if ((previous_rpm1 > 0 or previous_rpm2 > 0) and current_rpm1 == 0 and current_rpm2 == 0 and session_id is not None):
-        session_id = None
+        stop_session()
 
     rpm_vars[0]["previous_rpm"] = current_rpm1
     rpm_vars[1]["previous_rpm"] = current_rpm2
@@ -252,6 +250,28 @@ def close_valve():
     GPIO.output(VALVE_PIN, GPIO.LOW)
 
     return { "valveOpen": False }
+
+
+def start_session():
+    """Start a test session"""
+
+    global session_id
+
+    # We'll set time in UTC until we allow users to specify their timezone
+    session_start = datetime.datetime.now(datetime.timezone.utc)
+    session_id = session_start.strftime("%Y-%m-%d_%H.%M.%S")
+
+    return { "session": session_id }
+
+
+def stop_session():
+    """Stop a test session"""
+
+    global session_id
+
+    session_id = None
+
+    return { "session": session_id }
 
 
 def tacho_callback(channel):  # Channel = GPIO pin number

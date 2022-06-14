@@ -304,8 +304,6 @@ $(function()
         rpmChart.update()
 
         stopTimer(timer)
-        $("#seconds").html('00')
-        $("#minutes").html('00')
 
         temperatureDiffMax = null
         pressureDiffMax = null
@@ -552,6 +550,8 @@ $(function()
     {
         clearInterval ( timerObject )
         timer = null
+        $("#seconds").html('00')
+        $("#minutes").html('00')
     }
 
 
@@ -628,21 +628,69 @@ $(function()
     {
         $(this).hide()
 
-        
+        timer = startTimer()
 
         $("#stop-session-btn").show()
 
-        openValve(newState)
+        toggleSession("start")
     })
 
 
     $("#stop-session-btn").on( "click", function() 
     {
         $(this).hide()
+
+        stopTimer(timer)
+
         $("#start-session-btn").show()
 
-        openValve(newState)
+        toggleSession("stop")
     })
+
+
+    /**
+    * Start or stop a test session
+    * 
+    * @param {string} action "start" or "stop"
+    */
+    function toggleSession(action)
+    {
+        // Show loading indicator
+        //$("#valve-btn .fe").removeClass("fe-play-circle").addClass("fe-clock")
+
+        let request_data = {
+            action: action === "start" ? "start_session" : "stop_session"
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8000/session",
+            contentType: "json",
+            dataType: "json",
+            data: JSON.stringify(request_data),
+            success: function(data, text)
+            {
+                console.log(data)
+
+                // Update button state in Dashboard
+                /*if (data.valveOpen === true)
+                {
+                    // Set button to opened state (show stop)
+                    $("#valve-btn").data( "state", true )
+                    $("#valve-btn .fe").removeClass("fe-clock").addClass("fe-stop-circle")
+                } else {
+                    // Set button to closed state (show play)
+                    $("#valve-btn").data( "state", false )
+                    $("#valve-btn .fe").removeClass("fe-stop-circle").addClass("fe-play-circle")
+                }*/
+            }, 
+            error: function (request, status, error) {
+                console.error(request.responseText)
+                //$("#valve-btn .fe").removeClass("fe-clock").removeClass("fe-stop-circle").addClass("fe-play-circle")
+                //$("#valve-btn").data( "state", false )
+            },
+        })
+    }
 
 
     /**
