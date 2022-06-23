@@ -299,7 +299,6 @@ def close_valve():
 
 def start_session():
     """Start a test session"""
-    print("In start_session()", file=sys.stderr)
 
     global session_id
 
@@ -348,10 +347,8 @@ def zero_pressure(pressures = []):
         # Set new values in global config object
         config = configFile 
 
-    #except Exception as e:
-        #print("Error zeroing pressure: %s" % e, file=sys.stderr)
-    except 0:
-        print("Error zeroing pressure", file=sys.stderr)
+    except Exception as e:
+        print("Error zeroing pressure: %s" % e.message, file=sys.stderr)
         return False
 
     return True

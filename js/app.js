@@ -686,8 +686,6 @@ $(function()
     */
     function toggleSession(action)
     {
-        console.log("toggleSession", action)
-
         let request_data = {
             action: action === "start" ? "start_session" : "stop_session"
         }
@@ -702,7 +700,7 @@ $(function()
             {
                 console.log("toggleSession success", data)
 
-                if (data.success === null) {
+                if (data.session === null) {
                     // Successfully stopped a session
                     $("#stop-session-btn").hide().prop('disabled', false)
                     $("#start-session-btn").show().prop('disabled', false)
