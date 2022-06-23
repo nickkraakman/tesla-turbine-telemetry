@@ -38,6 +38,8 @@ read_interval = None        # Time between sensor readings
 temperature_class = DS18B20()
 temperature_sensors = temperature_class.device_count()
 
+temperature_vars = [None, None, None]
+
 rpm_vars_model = {
     "previous_rpm": -1,     # We'll instantiate with -1 instead of 0 to prevent accidental session start trigger
     "last_trigger": 0,      # Time of last RPM sensor trigger in ns
@@ -65,7 +67,7 @@ def read_sensors():
     """Read all sensors attached to the Raspberry Pi and return their values."""
     print( 'Reading sensor data' )
 
-    global session_id, rpm_vars, last_sensor_reading, read_interval
+    global session_id, rpm_vars, temperature_vars, last_sensor_reading, read_interval
 
     read_interval = time.time() - last_sensor_reading  # In seconds, with more detail in decimal
 
@@ -75,7 +77,10 @@ def read_sensors():
     current_rpm2 = read_rpm(2)
     pressure_1 = read_pressure(1)
     pressure_2 = read_pressure(2)
-
+    current_temperature1 = read_temperature(1)
+    current_temperature2 = read_temperature(2)
+    current_temperature3 = read_temperature(3)
+    
     # Check if we have to start a new session
     if (previous_rpm1 == 0 and previous_rpm2 == 0 and (current_rpm1 > 0 or current_rpm2 > 0) and session_id == None):
         start_session()
@@ -84,9 +89,9 @@ def read_sensors():
         'sessionId': session_id,
         'rpm': current_rpm1, 
         'rpm2': current_rpm2,
-        'temperature': read_temperature(1),     # Inlet temperature
-        'temperature2': read_temperature(2),    # Outlet temperature
-        'temperature3': read_temperature(3),    # Ambient temperature
+        'temperature': temperature_vars[0] if current_temperature1 == None else current_temperature1,     # Inlet temperature
+        'temperature2': temperature_vars[1] if current_temperature2 == None else current_temperature2,    # Outlet temperature
+        'temperature3': temperature_vars[2] if current_temperature3 == None else current_temperature3,    # Ambient temperature
         'pressure': pressure_1['pressure'],
         'pressureRelative': None if pressure_1['pressure'] == None else pressure_1['pressure'] - config["pressure"]["pressure1"]["offset"],
         'pressure2': pressure_2['pressure'],
@@ -103,6 +108,9 @@ def read_sensors():
 
     rpm_vars[0]["previous_rpm"] = current_rpm1
     rpm_vars[1]["previous_rpm"] = current_rpm2
+    temperature_vars[0] = sensor_data["temperature"]
+    temperature_vars[1] = sensor_data["temperature2"]
+    temperature_vars[2] = sensor_data["temperature3"]
 
     last_sensor_reading = time.time()  # Current timestamp in seconds (float, so more detail after dot)
 

@@ -56,7 +56,7 @@ class DS18B20:
         # Call this to get the temperature in degrees C
         # detected by a sensor
         data = self._read_temp(index)
-        retries = 5
+        retries = 0
 
         # Check for error
         if data == False:
@@ -69,7 +69,7 @@ class DS18B20:
             data = self._read_temp(index)
             retries -= 1
 
-        if retries == 0:
+        if (retries == 0) and (not "YES" in data):
             return None
 
         (discard, sep, reading) = data.partition(' t=')
