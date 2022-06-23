@@ -342,7 +342,7 @@ def zero_pressure(pressures = []):
 
     except Exception as e:
         print("Error zeroing pressure: %s" % e, file=sys.stderr)
-        return False
+        return { "error": e } #False
 
     return True
 
