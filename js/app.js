@@ -511,7 +511,7 @@ $(function()
         if (autoZero && !autoZeroed)
         {
             // Auto-zero the pressure on first sensor read based on ABSOLUTE pressures from sensors
-            zeroPressure(dataModel.pressure[0].pressure, dataModel.pressure[1].pressure)
+            $("#zero-btn").click()
             autoZeroed = true
         }
     }
