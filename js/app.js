@@ -9,6 +9,7 @@ $(function()
     var twoStage = true
     var temperatureDiffMax = null
     var pressureDiffMax = null
+    var autoZero = true  // Whether you want to auto-zero pressure on first sensor reading
     var autoZeroed = false
 
     // Constants
@@ -506,7 +507,7 @@ $(function()
             $("#pressureDiffMax").text( roundToTwo(pressureDiffMax) )
         }
 
-        if (!autoZeroed)
+        if (autoZero && !autoZeroed)
         {
             // Auto-zero the pressure on first sensor read based on ABSOLUTE pressures from sensors
             zeroPressure(dataModel.pressure[0], dataModel.pressure[1])

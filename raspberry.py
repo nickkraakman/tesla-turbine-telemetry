@@ -328,12 +328,9 @@ def zero_pressure(pressures = []):
             configFile = json.load(f)
 
         # Edit the data if enough datapoints are sent
-        if(len(pressures) < 2):
-            print("Unable to zero, <2 pressures received", file=sys.stderr)
-            return False
-
-        configFile['pressure']['pressure1']['offset'] = pressures[0]
-        configFile['pressure']['pressure2']['offset'] = pressures[1]
+        for index, pressure in enumerate(pressures):
+            i = str(index + 1)
+            configFile['pressure']['pressure' + i]['offset'] = pressures[index]
 
         # Write it back to the file
         with open('config.json', 'w') as f:
