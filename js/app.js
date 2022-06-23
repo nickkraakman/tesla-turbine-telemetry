@@ -651,8 +651,8 @@ $(function()
                     $("#valve-btn .fe").removeClass("fe-stop-circle").addClass("fe-play-circle")
                 }
             }, 
-            error: function (request, status, error) {
-                console.error(request.responseText)
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("valve error", textStatus, errorThrown)
                 $("#valve-btn .fe").removeClass("fe-clock").removeClass("fe-stop-circle").addClass("fe-play-circle")
                 $("#valve-btn").data( "state", false )
             },
@@ -708,12 +708,10 @@ $(function()
             data: JSON.stringify(request_data),
             success: function(data, text)
             {
-                console.log("success")
-                console.log(data)
+                console.log("toggleSession success", data)
             }, 
-            error: function (request, status, error) {
-                console.log("error")
-                console.error(request.responseText)
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("toggleSession error", textStatus, errorThrown)
                 stopTimer(timer)
                 $("#stop-session-btn").hide()
                 $("#start-session-btn").show()
@@ -744,9 +742,9 @@ $(function()
             {
                 console.log("Zeroing", data)
             }, 
-            error: function (request, status, error) {
-                console.error(request.responseText)
-            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error(textStatus, errorThrown)
+            }
         })
     }
 
@@ -779,9 +777,9 @@ $(function()
 
                     ready = true
                 }, 
-                error: function (request, status, error) {
-                    console.error(request.responseText)
-                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus, errorThrown)
+                }
             })
         }
 
