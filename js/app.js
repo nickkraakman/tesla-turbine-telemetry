@@ -11,6 +11,7 @@ $(function()
     var pressureDiffMax = null
     var autoZero = true  // Whether you want to auto-zero pressure on first sensor reading
     var autoZeroed = false
+    var ready = true // Whether we're ready to make a new request
 
     // Constants
     const loopIntervalMs = 1000  // How often we request data from the sensors
@@ -755,27 +756,34 @@ $(function()
      */
     function loop() 
     {
-        let request_data = {
-            action: "read_sensors"
+        if (ready)
+        {
+            ready = false 
+
+            let request_data = {
+                action: "read_sensors"
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:8000/sensors",
+                contentType: "json",
+                dataType: "json",
+                data: JSON.stringify(request_data),
+                success: function(data, text)
+                {
+                    console.log(data)
+
+                    // Update data in Dashboard
+                    displayData(data)
+
+                    ready = true
+                }, 
+                error: function (request, status, error) {
+                    console.error(request.responseText)
+                },
+            })
         }
-
-        $.ajax({
-            type: "POST",
-            url: "http://localhost:8000/sensors",
-            contentType: "json",
-            dataType: "json",
-            data: JSON.stringify(request_data),
-            success: function(data, text)
-            {
-                console.log(data)
-
-                // Update data in Dashboard
-                displayData(data)
-            }, 
-            error: function (request, status, error) {
-                console.error(request.responseText)
-            },
-        })
 
         setTimeout(loop, loopIntervalMs)
     }
