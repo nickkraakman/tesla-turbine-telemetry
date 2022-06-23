@@ -662,11 +662,7 @@ $(function()
 
     $("#start-session-btn").on( "click", function() 
     {
-        $(this).hide()
-
-        timer = startTimer()
-
-        $("#stop-session-btn").show()
+        $(this).prop('disabled', true)
 
         toggleSession("start")
     })
@@ -674,11 +670,7 @@ $(function()
 
     $("#stop-session-btn").on( "click", function() 
     {
-        $(this).hide()
-
-        stopTimer(timer)
-
-        $("#start-session-btn").show()
+        $(this).prop('disabled', true)
 
         toggleSession("stop")
     })
@@ -691,9 +683,6 @@ $(function()
     */
     function toggleSession(action)
     {
-        // Show loading indicator
-        //$("#valve-btn .fe").removeClass("fe-play-circle").addClass("fe-clock")
-
         console.log("toggleSession", action)
 
         let request_data = {
@@ -709,12 +698,22 @@ $(function()
             success: function(data, text)
             {
                 console.log("toggleSession success", data)
+
+                if (data.success === null) {
+                    // Successfully stopped a session
+                    $("#stop-session-btn").hide().prop('disabled', false)
+                    $("#start-session-btn").show().prop('disabled', false)
+                } else {
+                    // Successfully started a session
+                    $("#stop-session-btn").show().prop('disabled', false)
+                    $("#start-session-btn").hide().prop('disabled', false)
+                }
             }, 
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error("toggleSession error", textStatus, errorThrown)
                 stopTimer(timer)
-                $("#stop-session-btn").hide()
-                $("#start-session-btn").show()
+                $("#stop-session-btn").hide().prop('disabled', false)
+                $("#start-session-btn").show().prop('disabled', false)
             },
         })
     }
