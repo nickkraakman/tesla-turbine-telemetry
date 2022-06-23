@@ -291,6 +291,7 @@ def close_valve():
 
 def start_session():
     """Start a test session"""
+    print("In start_session()", file=sys.stderr)
 
     global session_id
 
