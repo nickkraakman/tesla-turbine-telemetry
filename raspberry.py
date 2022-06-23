@@ -348,7 +348,7 @@ def zero_pressure(pressures = []):
         config = configFile 
 
     except Exception as e:
-        print("Error zeroing pressure: %s" % e.message, file=sys.stderr)
+        print("Error zeroing pressure: %s" % e, file=sys.stderr)
         return False
 
     return True
