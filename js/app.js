@@ -315,7 +315,7 @@ $(function()
             rotor: [Object.create(rotorModel), Object.create(rotorModel)],
             speed: [Object.create(speedModel), Object.create(speedModel)],
             power: [Object.create(powerModel), Object.create(powerModel)],
-            temperature: [Object.create(temperatureModel), Object.create(temperatureModel)],
+            temperature: [Object.create(temperatureModel), Object.create(temperatureModel), Object.create(temperatureModel)],
             pressure: [Object.create(pressureModel), Object.create(pressureModel)],
         }
     }
