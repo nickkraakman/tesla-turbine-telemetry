@@ -55,7 +55,7 @@ def read_m3200(sensor = 1):
     try:
       pi.i2c_write_quick(handle, 1)  # Send READ_MR command to start measurement and DSP calculation cycle
     except:
-      print("Error writing to the sensor, perhaps none is connected to bus %s" % bus, file=sys.stderr)
+      #print("Error writing to the sensor, perhaps none is connected to bus %s" % bus, file=sys.stderr)
       pi.stop()
       return None
 
