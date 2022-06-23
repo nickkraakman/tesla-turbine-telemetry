@@ -434,11 +434,11 @@ $(function()
     function displayTemperature(data)
     {   
         for (let index = 0; index < dataModel.temperature.length; index++) {
-            let i = index === 0 ? "" : toString(index + 1)
+            let i = index === 0 ? "" : index + 1
+            i = i.toString()
 
             let currentTemperature = data['temperature' + i] === null ? null : roundToTwo(data['temperature' + i])
 
-            console.log("i", i, "currentTemperature", currentTemperature)
             $("#card-temp #temperature" + i).html(currentTemperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
 
             let temperature = dataModel.temperature[index]
