@@ -693,6 +693,8 @@ $(function()
         // Show loading indicator
         //$("#valve-btn .fe").removeClass("fe-play-circle").addClass("fe-clock")
 
+        console.log("toggleSession", action)
+
         let request_data = {
             action: action === "start" ? "start_session" : "stop_session"
         }
@@ -705,9 +707,11 @@ $(function()
             data: JSON.stringify(request_data),
             success: function(data, text)
             {
+                console.log("success")
                 console.log(data)
             }, 
             error: function (request, status, error) {
+                console.log("error")
                 console.error(request.responseText)
                 stopTimer(timer)
                 $("#stop-session-btn").hide()
