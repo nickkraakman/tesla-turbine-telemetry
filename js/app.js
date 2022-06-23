@@ -511,8 +511,11 @@ $(function()
         if (autoZero && !autoZeroed)
         {
             // Auto-zero the pressure on first sensor read based on ABSOLUTE pressures from sensors
-            zeroPressure(dataModel.pressure[0], dataModel.pressure[1])
-            autoZeroed = true
+            // But first wait 2 seconds for the program to load a bit further
+            setTimeout(function () {
+              zeroPressure(dataModel.pressure[0], dataModel.pressure[1])
+              autoZeroed = true
+            }, 2000)
         }
     }
 
