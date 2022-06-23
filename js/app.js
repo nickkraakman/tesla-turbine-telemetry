@@ -727,6 +727,8 @@ $(function()
     */
     function zeroPressure(pressures)
     {
+        $("#zero-btn").prop('disabled', true)
+
         let request_data = {
             action: "zero_pressure",
             payload: pressures
@@ -741,9 +743,13 @@ $(function()
             success: function(data, text)
             {
                 console.log("Zeroing", data)
+
+                $("#zero-btn").prop('disabled', false)
             }, 
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error(textStatus, errorThrown)
+
+                $("#zero-btn").prop('disabled', false)
             }
         })
     }
