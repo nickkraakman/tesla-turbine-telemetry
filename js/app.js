@@ -472,10 +472,10 @@ $(function()
         for (let index = 0; index < dataModel.pressure.length; index++) {
             let i = index === 1 ? "2" : ""
 
-            let currentPressureAbsolute = roundToTwo(data[`pressure${i}`])
-            let currentPressureRelative = roundToTwo(data[`pressure${i}Relative`])  // We want to display relative pressure, might make this configurable at some point
+            let currentPressureAbsolute = data[`pressure${i}`] === null ? null : roundToTwo(data[`pressure${i}`])
+            let currentPressureRelative = data[`pressure${i}Relative`] === null ? null : roundToTwo(data[`pressure${i}Relative`])  // We want to display relative pressure, might make this configurable at some point
 
-            $("#card-pressure #pressure" + i).html(currentPressure + " Psi")  // @TODO: convert to PSI if Imperial is selected
+            $("#card-pressure #pressure" + i).html(currentPressureRelative + " Psi")
 
             let pressure = dataModel.pressure[index]
 
@@ -491,9 +491,13 @@ $(function()
             $("#pressureMax" + i).text( pressure.pressureMax )
         }
 
-        var currentPressureDiff = Math.abs(dataModel.pressure[0].pressureRelative - dataModel.pressure[1].pressureRelative)
-        pressureDiffMax = pressureDiffMax === null ? currentPressureDiff : Math.max(pressureDiffMax, currentPressureDiff)
-        $("#pressureDiffMax").text( roundToTwo(pressureDiffMax) )
+        // Only set pressure difference if we have two pressures set
+        if (dataModel.pressure[0].pressureRelative !== null && dataModel.pressure[1].pressureRelative !== null)
+        {
+            var currentPressureDiff = Math.abs(dataModel.pressure[0].pressureRelative - dataModel.pressure[1].pressureRelative)
+            pressureDiffMax = pressureDiffMax === null ? currentPressureDiff : Math.max(pressureDiffMax, currentPressureDiff)
+            $("#pressureDiffMax").text( roundToTwo(pressureDiffMax) )
+        }
 
         if (!autoZeroed)
         {
