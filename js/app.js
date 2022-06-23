@@ -436,8 +436,9 @@ $(function()
         for (let index = 0; index < dataModel.temperature.length; index++) {
             let i = index === 0 ? "" : toString(index + 1)
 
-            let currentTemperature = roundToTwo(data['temperature' + i])
+            let currentTemperature = data['temperature' + i] === null ? null : roundToTwo(data['temperature' + i])
 
+            console.log("i", i, "currentTemperature", currentTemperature)
             $("#card-temp #temperature" + i).html(currentTemperature + "&deg;C")  // @TODO: convert to Fahrenheit if Imperial is selected
 
             let temperature = dataModel.temperature[index]
@@ -456,9 +457,13 @@ $(function()
             }
         }
 
-        var currentTemperatureDiff = Math.abs(dataModel.temperature[0].temperature - dataModel.temperature[1].temperature)
-        temperatureDiffMax = temperatureDiffMax === null ? currentTemperatureDiff : Math.max(temperatureDiffMax, currentTemperatureDiff)
-        $("#temperatureDiffMax").text( roundToTwo(temperatureDiffMax) )
+        // Only show temperature difference if we have two temperatures
+        if (dataModel.temperature[0].temperature !== null && dataModel.temperature[1].temperature !== null)
+        {
+            var currentTemperatureDiff = Math.abs(dataModel.temperature[0].temperature - dataModel.temperature[1].temperature)
+            temperatureDiffMax = temperatureDiffMax === null ? currentTemperatureDiff : Math.max(temperatureDiffMax, currentTemperatureDiff)
+            $("#temperatureDiffMax").text( roundToTwo(temperatureDiffMax) )
+        }
     }
 
 
@@ -578,11 +583,9 @@ $(function()
     $("#more-stats-btn").on( "click", function() 
     {
         if ( $("#more-stats-btn .fe").hasClass("fe-eye") ) {
-            console.log("hasClass fe-eye")
             $(".data-wrapper").hide()
             $("#more-stats-btn .fe").removeClass("fe-eye").addClass("fe-eye-off")
         } else {
-            console.log("NOT hasClass fe-eye")
             $(".data-wrapper").show()
             $("#more-stats-btn .fe").removeClass("fe-eye-off").addClass("fe-eye")
         }
