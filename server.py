@@ -54,6 +54,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         print("Action: %s" % action)
         print("Payload: %s" % payload)
 
+        print("Action %s" % action, file=sys.stderr)
+
         response = raspberry.do_action( action, payload )
 
         json_response_string = json.dumps(response)
