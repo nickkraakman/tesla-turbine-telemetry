@@ -61,7 +61,10 @@ def read_m3200(sensor = 1):
 
     time.sleep(2 / 1000)  # Response time from power on to reading measurement data is 8.4 ms with sleep mode
 
-    count, data = pi.i2c_read_device(handle, 4)  # Send READ_DF4 command, to fetch 2 pressure bytes & 2 temperature bytes
+    bytes_to_read = 2
+
+    count, data = pi.i2c_read_device(handle, bytes_to_read)  # Send READ_DF2 command, to fetch 2 pressure bytes
+    #count, data = pi.i2c_read_device(handle, 4)  # Send READ_DF4 command, to fetch 2 pressure bytes & 2 temperature bytes
 
     pi.i2c_close(handle)
     pi.stop()
@@ -76,8 +79,10 @@ def read_m3200(sensor = 1):
 
     print("data[0] =", "{:08b}".format(data[0]) )  # First two bits are status bits, other 6 bits are pressure bits
     print("data[1] =", "{:08b}".format(data[1]) )  # All bits are pressure bits   
-    print("data[2] =", "{:08b}".format(data[2]) )  # All bits are temperature bits
-    print("data[3] =", "{:08b}".format(data[3]) )  # First 3 bits are temperature bits, last 5 bits are unrelated and should be ignored
+    
+    if (bytes_to_read == 4):
+        print("data[2] =", "{:08b}".format(data[2]) )  # All bits are temperature bits
+        print("data[3] =", "{:08b}".format(data[3]) )  # First 3 bits are temperature bits, last 5 bits are unrelated and should be ignored
 
     # Handle sensor status
     status_code = "{:08b}".format(data[0])[:2]  # Get first two bits from first byte
@@ -96,19 +101,21 @@ def read_m3200(sensor = 1):
         return None
 
     # Perform some bitwise magic to get the the temperature count and the pressure count
-    Tvalue = (data[2] << 3) | (data[3] >> 5)
     Pvalue = (data[0] << 8) | data[1]
-
-    print("Tvalue =", Tvalue)
     print("Pvalue =", Pvalue)
 
-    # Calculate actual temperature and pressure values
-    temperature = Tvalue * Tscope / Tspan - 50
     pressure = (Pvalue + 1000) * (Pmax - Pmin) / Pspan + Pmin
+    print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is ~14.69, 0 is perfect vacuum, but this sensor only goes down to 7.14 PSI...)
 
-    print("Temperature =", temperature, "ºC")  # Temperature in ºC = INTERNAL temperature used for calibration, NOT temperature of the medium unfortunately
-    print("Pressure =", pressure, "PSI")  # Pressure in PSI (atmospheric is ~14.69, 0 is perfect vacuum)
+    if (bytes_to_read == 4):
+        Tvalue = (data[2] << 3) | (data[3] >> 5)
+        print("Tvalue =", Tvalue)
 
+        temperature = Tvalue * Tscope / Tspan - 50
+        print("Temperature =", temperature, "ºC")  # Temperature in ºC = INTERNAL temperature used for calibration, NOT temperature of the medium unfortunately
+    else: 
+        temperature = None
+    
     return {
         "temperature": temperature,
         "pressure": pressure
